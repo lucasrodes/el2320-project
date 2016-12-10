@@ -10,6 +10,8 @@ v.CurrentTime = 45;
 
 colormap(gray(256));
 
+count = 0;
+[R,Q,A,C] = kalmanInit();
 while hasFrame(v)
     %Frame matrix
     vidFrame = readFrame(v);
@@ -65,11 +67,36 @@ while hasFrame(v)
 
           % mark objects above the threshold with a black circle
           if metric > threshold
-            centroid(k,:) = round(stats(k).Centroid)
-            vidFrame((centroid(k,2)-4:centroid(k,2)+4),(centroid(k,1)-4:centroid(k,1)+4),:) = 256;
-            distance = sqrt(area/pi);
-            vidFrame = drawCircle(vidFrame,centroid(k,2),centroid(k,1),distance);
-          end
+            count
+            centroid(k,:) = round(stats(k).Centroid);
+            if count == 0
+                x1 = centroid;
+                count = count+1;
+            else
+                if count == 1
+                    x2 = centroid;
+                    vv = x2 - x1;
+                    x = [x2(1); x2(2); vv(1); vv(2)];
+                    Sigma = 10*eye(4);
+                    [mu_bar, Sigma_bar] = kalmanPredict(x, Sigma, A, R);
+                    z = x2';
+                    [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
+                    count = count+1;
+                else
+                    [mu_bar, Sigma_bar] = kalmanPredict(x, Sigma, A, R);
+                    z = centroid';
+                    z = z(:,1);
+                    
+                    [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
+                    count = count+1;
+                end
+
+                vidFrame((mu(2)-4:mu(2)+4),(mu(1)-4:mu(1)+4),:) = 256;
+                %vidFrame((centroid(k,2)-4:centroid(k,2)+4),(centroid(k,1)-4:centroid(k,1)+4),:) = 256;
+                distance = sqrt(area/pi);
+                vidFrame = drawCircle(vidFrame,mu(2),mu(1),distance);
+            end
+         end
       end
     end
     image(vidFrame)

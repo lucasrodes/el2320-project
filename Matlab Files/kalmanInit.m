@@ -13,13 +13,16 @@
 %
 function [R,Q,A,C] = kalmanInit()
 
+dt = 1;
+
 % Define system parameters
-R = eye(4); % Process noise
-Q = 10*eye(2); % Measurement noise
+R = 10*eye(4); % Process noise
+Q = 1*eye(2); % Measurement noise
 A = [1,0,dt,0;
      0,1,0,dt;
      0,0,1,0;
      0,0,0,1]; % State transition matrix
-C = [1; 1; 0; 0]; % Measurement - State mapping
+C = [1, 0, 0, 0; 
+     0, 1, 0, 0]; % Measurement - State mapping
 
 end

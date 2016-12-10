@@ -1,14 +1,16 @@
 clear all
 close all
 
-BEGINING = 50;
+BEGINING = 40;
 ENDING = 65;
 
+particle_size = 2;
+c_size = 12;
 %Video input file
 v = VideoReader('Bouncing_Ball_Reference.avi');
 
 %outputVideo = VideoWriter('out.avi');
-
+threshold_square = 15;
 %open(outputVideo)
 
 %Get image size x - vertical y - horizontal
@@ -43,14 +45,52 @@ while hasFrame(v) || v.currentTime <= ENDING
     blue = justBlue > 40;
     %Binary pic
     out = green + red + blue;
+    grayImage = 255 * uint8(out);
+    RGB = cat(3, grayImage, grayImage, grayImage);
+    %change to rgb
     %%%%%%%%%%%%%%%%%%%%
     %%Particles filter%%
     %%%%%%%%%%%%%%%%%%%%
    
     %we get the particles and the outliers this way
-    [S] = Particles_filters(S,R,x,y,out);
-    vidFrame(S(1,:),S(2,:),1) = 255;
-    subplot(1,1,1); image(vidFrame)
+    tic
+    [S] = Particles_filters(S,R,x,y,out,particle_size);
+    centroid = mean(S,2);
+    for i=1:size(S,2)
+       RGB(S(1,i)-round(particle_size/2)+1:S(1,i)+round(particle_size/2),S(2,i)-round(particle_size/2)+1:S(2,i)+round(particle_size/2),2) = 255;
+       RGB(S(1,i)-round(particle_size/2)+1:S(1,i)+round(particle_size/2),S(2,i)-round(particle_size/2)+1:S(2,i)+round(particle_size/2),1) = 0;
+       vidFrame(S(1,i)-round(particle_size/2)+1:S(1,i)+round(particle_size/2),S(2,i)-round(particle_size/2)+1:S(2,i)+round(particle_size/2),2) = 255;
+       %Calculate distances to centroid
+       distance(i) = sqrt((S(1,i)-centroid(1)).^2 + (S(2,i)-centroid(2)).^2);
+    end
+    
+    
+    
+    %Paint the centroid
+    RGB(centroid(1)-round(c_size/2)+1:centroid(1)+round(c_size/2),centroid(2)-round(c_size/2)+1:centroid(2)+round(c_size/2),3) = 255;
+    RGB(centroid(1)-round(c_size/2)+1:centroid(1)+round(c_size/2),centroid(2)-round(c_size/2)+1:centroid(2)+round(c_size/2),1) = 0;
+    vidFrame(centroid(1)-round(c_size/2)+1:centroid(1)+round(c_size/2),centroid(2)-round(c_size/2)+1:centroid(2)+round(c_size/2),:) = 255;
+    
+    distance = sort(distance);
+    max_distance = distance(size(S,2) - threshold_square);
+    if centroid(1) > x/2
+        if max_distance > x - centroid(1)
+        max_distance = round(x-centroid(1) - 1);
+        end
+    elseif centroid(1) <= x/2
+        if max_distance > centroid(1)
+        max_distance = round(centroid(1) - 1);
+        end
+    end
+    subplot(2,1,1); image(RGB); axis image
+    hold on
+    rectangle('position',[centroid(2)-max_distance centroid(1)-max_distance 2*max_distance 2*max_distance], 'EdgeColor','r')
+    hold off
+    subplot(2,1,2); image(vidFrame); axis image
+    hold on
+    rectangle('position',[centroid(2)-max_distance centroid(1)-max_distance 2*max_distance 2*max_distance], 'EdgeColor','r')
+    hold off
+    toc
     %writeVideo(outputVideo,vidFrame)
     %%%%%%%%%%%%%%%%%%%
     %%Post operations%%

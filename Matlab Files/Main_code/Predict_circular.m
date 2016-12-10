@@ -7,7 +7,7 @@
 % Outputs:
 %           S_bar(t)            4XM
 
-function [S_bar] = Predict_circular(S,R,x,y)
+function [S_bar] = Predict_circular(S,R,x,y,particle_size)
 
 %Number of particles
 N = size(S, 2);
@@ -34,9 +34,21 @@ Normal_R = [Random_mat zeros(N,1)]';
 S = (round(S + Normal_R));
 
 %Check dimension boundaries
-S(1,:) = S(1,:).*(S(1,:) < x);
-S(2,:) = S(2,:).*(S(2,:) < y);
-S(1:2,:) = S(1:2,:) + (S(1:2,:) == 0);
+for i = 1:size(S,2)
+    if S(1,i) > (x - particle_size/2)
+        S(1,i) = x - round(particle_size/2) - 1;
+    end
+    if S(2,i) > (y - particle_size/2)
+        S(2,i) = y - round(particle_size/2) - 1;
+    end
+    if (S(1,i) < particle_size/2)||(S(1,i) == 0)
+        S(1,i) = round(particle_size/2) + 1;
+    end
+    if (S(2,i) < particle_size/2)||(S(2,i) == 0)
+        S(2,i) = 1 + round(particle_size/2);
+    end
+end
+
 S_bar = abs(S);
 
 end

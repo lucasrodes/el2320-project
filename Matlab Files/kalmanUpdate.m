@@ -1,5 +1,6 @@
 % function [mu_bar, Sigma_bar] = kalmanPredict(A, B, mu, u, R)
 % This function performs the prediction script using Kalman Filter.
+%
 % Inputs:
 %           mu_bar            nX1
 %           Sigma_bar         nXn
@@ -7,8 +8,9 @@
 %           C                 mXn
 %           Q                 mXm
 % Outputs:   
-%           mu(t)         nX1
-%           Sigma(t)      nXn
+%           mu(t)             nX1
+%           Sigma(t)          nXn
+%
 function [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q)
     
     v = z - C*mu_bar; % measurement innovation

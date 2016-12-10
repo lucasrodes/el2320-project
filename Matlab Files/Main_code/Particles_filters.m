@@ -1,7 +1,7 @@
-function S = Particles_filters(S,R,x,y,Im_in)
+function S = Particles_filters(S,R,x,y,Im_in,particle_size)
 
 %Prediction
-[S_bar] = Predict_circular(S,R,x,y);
+[S_bar] = Predict_circular(S,R,x,y,particle_size);
 
 % Particles weightening
 S_bar = weight_Particles(S_bar,Im_in);

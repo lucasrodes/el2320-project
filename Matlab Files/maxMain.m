@@ -5,7 +5,12 @@
 function maxMain()
 
 % Initialize parameters of the Kalman Filter
-[R,Q,A,C,x,Sigma] = kalmanInit();
+[R,Q,A,C] = kalmanInit();
+
+% Initialization
+x = [0,0,0,0,0,0]; % Initial state vector
+sigma = 10;
+Sigma = sigma*eye(6); % Estimated accuracy of x
 
 while (1)
     % Kalman Filter: Prediction Step

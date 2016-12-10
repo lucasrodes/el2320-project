@@ -11,16 +11,15 @@
 %
 % Where n := length of state vector and m := length of measurement vector
 %
-function [R,Q,A,C,x,Sigma] = kalmanInit()
+function [R,Q,A,C] = kalmanInit()
 
 % Define system parameters
-R = 1; % Process noise
-Q = 1; % Measurement noise
-A = 1; % State transition matrix
-C = 1; % Measurement - State mapping
-
-% Initialization
-x = [0,0,0,0,0,0]; % Initial state vector
-Sigma = sigma*eye(6); % Estimated accuracy of x
+R = eye(4); % Process noise
+Q = eye(2); % Measurement noise
+A = [1,0,dt,0;
+     0,1,0,dt;
+     0,0,1,0;
+     0,0,0,1]; % State transition matrix
+C = [1; 1; 0; 0]; % Measurement - State mapping
 
 end

@@ -15,7 +15,7 @@ function [R,Q,A,C] = kalmanInit()
 
 % Define system parameters
 R = eye(4); % Process noise
-Q = eye(2); % Measurement noise
+Q = 10*eye(2); % Measurement noise
 A = [1,0,dt,0;
      0,1,0,dt;
      0,0,1,0;

@@ -1,0 +1,22 @@
+
+function maxMain()
+
+% Define system parameters
+R = 1; % Process noise
+Q = 1; % Measurement noise
+A = 1; % State transition matrix
+C = 1; % Measurement - State mapping
+
+% Initialization
+x = [0,0,0,0,0,0]; % Initial state vector
+Sigma = sigma*eye(6); % Estimated accuracy of x
+
+% Predict
+[mu_bar, Sigma_bar] = kalmanPredict(x, Sigma, A, R);
+% Obtain measure
+
+% Update
+[mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
+
+
+end

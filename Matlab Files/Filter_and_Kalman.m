@@ -62,7 +62,7 @@ while hasFrame(v)
     [vidFrame, RGB, distance] = particle_distance_and_out( vidFrame ,RGB, Sp,centroid,particle_size,c_size );
     
     %We calculate the roundness of the cloud to see if it is ocluded
-    [roundness,param] = roundness_calc(Sp, threshold_square)
+    [roundness,param] = roundness_calc(Sp, threshold_square);
     
     %Parameters initialization
     [R,Q,A,C] = kalmanInit(param);
@@ -110,9 +110,9 @@ while hasFrame(v)
     if mu(2) >= yp - 4
          mu(2) = yp - 4;
     end
-    vidFrame(abs(round(mu(1))-4):round(mu(1))+4,abs(round(mu(2))-4):round(mu(2))+4,1:2) = 256;
-    RGB(abs(round(mu(1))-4):round(mu(1))+4,abs(round(mu(2))-4):round(mu(2))+4,:) = 0;
-    RGB(abs(round(mu(1))-4):round(mu(1))+4,abs(round(mu(2))-4):round(mu(2))+4,3) = 256;
+    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 256;
+    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,:) = 0;
+    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 256;
 
     %Calculate the max size of the square that will be painted around the
     %object

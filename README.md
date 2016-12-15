@@ -1,6 +1,6 @@
 # el2320-project
 
-Comparison of Particle Filter and Kalman Filter approaches in a simple real-time object tracking example.
+Combination of Particle Filter and Kalman Filter approaches in a simple real-time object tracking example.
 
 ## Process
 
@@ -16,4 +16,17 @@ Comparison of Particle Filter and Kalman Filter approaches in a simple real-time
 - Need of initialization of x, sigma.
 - Global parameters A,B,C
 - Process noise R and Measurement noise Q
+
+## Code structure of Kalman
+
+I have worked on files `KalmanInit.m`, `KalmanPredict.m` and `KalmanUpdate.m`.
+
+- `KalmanInit.m`: *Initialize* the parameters of the system, such as A, B, C, Q and R.
+- `KalmanPredict.m`: *Prediction* step of Kalman Filter.
+- `KalmanUpdate.m`: *Update* step of Kalman Filter.
+
+
+### Testing
+
+I am currently testing the combination of Particle filter and Kalman filter in the file `obtainMeasure.m`. See starting from line 70.
 

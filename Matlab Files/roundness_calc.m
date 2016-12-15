@@ -17,10 +17,10 @@ function [roundness, parameter] = roundness_calc(Sp, threshold_square)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %Parameters
-    if roundness >= 0.94
+    if roundness >= 0.90
         %Good circle, then  
         parameter = 1;
-    elseif roundness < 0.94 && roundness >= 0.8
+    elseif roundness < 0.90 && roundness >= 0.8
         %Not very good, higher Q
         parameter = 2;
     elseif roundness < 0.8

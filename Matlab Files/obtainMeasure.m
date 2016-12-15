@@ -12,6 +12,7 @@ colormap(gray(256));
 
 count = 0;
 [R,Q,A,C] = kalmanInit();
+ACCELERATION = 0;
 while hasFrame(v)
     %Frame matrix
     vidFrame = readFrame(v);
@@ -74,18 +75,35 @@ while hasFrame(v)
             % the initial point. We use a variable count to know at which 
             % time step are we currently.
             if count == 0
-                x1 = centroid; % initial position (t=0)
+                x0 = centroid; % initial position (t=0)
                 count = count+1;
-            else
+            elseif
                 % (2) When we are at t=1, we are able to obtain the initial
                 % speed as the difference of the position at t=1 and t=0.
                 % Next, we also initialize the initial covariance matrix
                 % with an arbitrary value (high, since we are at the
                 % beginning and we are not really sure!)
                 if count == 1
-                    x2 = centroid; % position at t=1
-                    vv = x2 - x1; % initial speed
-                    x = [x2(1); x2(2); vv(1); vv(2)]; % Initial state
+                    x1 = centroid; % position at t=1
+                    vv1 = x1 - x0; % initial speed
+                    if ACCELERATION == 0
+                        x = [x1(1); x1(2); vv1(1); vv1(2)]; % Initial state
+                        Sigma = 10*eye(4); % Uncertainty at the beginning
+                        % Prediction step
+                        [mu_bar, Sigma_bar] = kalmanPredict(x, Sigma, A, R);
+                        z = x1'; % obtain measure (should be from PF)
+                        % Update step
+                        [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
+                    end
+                    count = count+1;
+                % (3) When we are at t=2, we are able to obtain the initial
+                % acceleration as the difference of the speed at t=2 and
+                % t=1. 
+                elseif count == 2
+                    x2 = centroid; % position at t=2
+                    vv2 = x2 - x1; % speed at t=2
+                    aa2 = vv2 - vv1; % acceleration at t=2
+                    x = [x2(1); x2(2); vv2(1); vv2(2); aa2(1); aa2(2)]; % Initial state
                     Sigma = 10*eye(4); % Uncertainty at the beginning
                     % Prediction step
                     [mu_bar, Sigma_bar] = kalmanPredict(x, Sigma, A, R);
@@ -93,10 +111,10 @@ while hasFrame(v)
                     % Update step
                     [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
                     count = count+1;
-                % (3) We enter this whenever t>=1. We proceed as following. 
+                % (4) We enter this whenever t>=2. We proceed as following. 
                 else
                     % Prediction step
-                    [mu_bar, Sigma_bar] = kalmanPredict(x, Sigma, A, R);
+                    [mu_bar, Sigma_bar] = kalmanPredict(mu, Sigma, A, R);
                     
                     % Measurement (should come from Particle Filter)
                     z = centroid';

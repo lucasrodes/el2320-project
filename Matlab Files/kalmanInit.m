@@ -11,7 +11,7 @@
 %
 % Where n := length of state vector and m := length of measurement vector
 %
-function [R,Q,A,C] = kalmanInit()
+function [R,Q,A,C] = kalmanInit(param)
 
 dt = 1; % Discrete time
 
@@ -21,7 +21,17 @@ dt = 1; % Discrete time
 % the measurements are not really trustful and Kalman puts more weight on
 % the motion model.
 R = 10*eye(4); % Process noise
-Q = 1*eye(2); % Measurement noise
+
+%If good circle
+if param == 1
+    Q = 1*eye(2); % Measurement noise
+%Not good circle
+elseif param == 2
+    Q = 10*eye(2);
+%No circle
+else
+    Q = 10000000*eye(2);
+end
 
 A = [1,0,dt,0;
      0,1,0,dt;

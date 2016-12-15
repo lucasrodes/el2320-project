@@ -6,7 +6,7 @@ close all;
 v = VideoReader('Bouncing_Ball_Reference.avi');
 
 %Specify that reading should begin 2.5 seconds from the beginning of the video.
-v.CurrentTime = 45;
+v.CurrentTime = 14;
 
 colormap(gray(256));
 

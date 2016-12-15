@@ -9,9 +9,6 @@ v.CurrentTime = 45;
 %Parameter to decide the colour filtering
 colour_thres = 1.55;
 
-%Needed to output the pictures in gray format
-colormap(gray(256));
-
 %Flag to differenciate the first iteration from the following
 count = 0;
 
@@ -26,7 +23,7 @@ particle_size = 2;
 c_size = 12;
 
 %outputVideo = VideoWriter('out.avi');
-threshold_square = 15;
+threshold_square = 30;
 
 %Get image size x - vertical y - horizontal
 [xp,yp,~] = size(readFrame(v));
@@ -39,7 +36,7 @@ threshold_square = 15;
 %%%%%%%%%%%%%%%%%
 
 %Parameters initialization
-[R,Q,A,C] = kalmanInit();
+[R,Q,A,C] = kalmanInit(1);
 
 while hasFrame(v)
     %Frame matrix
@@ -64,30 +61,12 @@ while hasFrame(v)
     %ascending order
     [vidFrame, RGB, distance] = particle_distance_and_out( vidFrame ,RGB, Sp,centroid,particle_size,c_size );
     
-    %Calculate the max size of the square that will be painted around the
-    %object
+    %We calculate the roundness of the cloud to see if it is ocluded
+    [roundness,param] = roundness_calc(Sp, threshold_square)
     
-    max_distance_x = distance(size(Sp,2) - threshold_square);
-    max_distance_y = distance(size(Sp,2) - threshold_square);
-    if centroid(1) > xp/2
-        if max_distance_x > xp - centroid(1)
-            max_distance_x = round(xp-centroid(1) - 1);
-        end
-    elseif centroid(1) <= xp/2
-        if max_distance_x > centroid(1)
-            max_distance_x = round(centroid(1) - 1);
-        end
-    end
-    if centroid(2) > yp/2
-        if max_distance_y > yp - centroid(2)
-            max_distance_y = round(yp-centroid(2) - 1);
-        end
-    elseif centroid(2) <= yp/2
-        if max_distance_y > centroid(2)
-            max_distance_y = round(centroid(2) - 1);
-        end
-    end
-    
+    %Parameters initialization
+    [R,Q,A,C] = kalmanInit(param);
+
     % (1) If we are at t = 0, we obtain the centroid and set it as 
     % the initial point. We use a variable count to know at which 
     % time step are we currently.
@@ -131,23 +110,29 @@ while hasFrame(v)
     if mu(2) >= yp - 4
          mu(2) = yp - 4;
     end
-     vidFrame(round(mu(1))-4:round(mu(1))+4,round(mu(2))-4:round(mu(2))+4,1:2) = 256;
-     RGB(round(mu(1))-4:round(mu(1))+4,round(mu(2))-4:round(mu(2))+4,:) = 0;
-     RGB(round(mu(1))-4:round(mu(1))+4,round(mu(2))-4:round(mu(2))+4,3) = 256;
+    vidFrame(abs(round(mu(1))-4):round(mu(1))+4,abs(round(mu(2))-4):round(mu(2))+4,1:2) = 256;
+    RGB(abs(round(mu(1))-4):round(mu(1))+4,abs(round(mu(2))-4):round(mu(2))+4,:) = 0;
+    RGB(abs(round(mu(1))-4):round(mu(1))+4,abs(round(mu(2))-4):round(mu(2))+4,3) = 256;
 
+    %Calculate the max size of the square that will be painted around the
+    %object
+    
+    [max_distance_x, max_distance_y] = rect_size(xp,yp,centroid(1),centroid(2),threshold_square,Sp,distance);
+    [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,Sp,distance);
     
     subplot(2,1,1); image(RGB); axis image
     hold on
     rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
-%     hold on
-%     rectangle('position',[mu(2)-max_distance mu(1)-max_distance 2*max_distance 2*max_distance], 'EdgeColor','g')
+    hold on
+    rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
     hold off
     subplot(2,1,2); image(vidFrame); axis image
     hold on
     rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
     hold on
-%     rectangle('position',[mu(2)-max_distance mu(1)-max_distance 2*max_distance 2*max_distance], 'EdgeColor','g')
-%     hold off
+    rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
+    hold off
+    toc
     %We ensure the video output has the same frame rate as the original
     pause((1/v.FrameRate));
    

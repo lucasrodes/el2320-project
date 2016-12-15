@@ -1,10 +1,15 @@
 clear all;
 close all;
+
+%set to one if some areas want to be erased to check how god does the
+%kalman filter works
+OBSTACLES = 1;
+
 %Video input file
 v = VideoReader('NES Longplay [456] Pinball.avi');
 
 %Specify that reading should begin 2.5 seconds from the beginning of the video.
-v.CurrentTime = 260;
+v.CurrentTime = 255;
 
 %Parameter to decide the colour filtering
 colour_thres = 1.55;
@@ -45,6 +50,9 @@ while hasFrame(v)
     vidFrame = readFrame(v); 
     tic
     
+    if OBSTACLES
+        vidFrame = Video_editing(vidFrame);
+    end
     %Filters the image and transforms it in a binary image. White will
     %represent high intensity colours and black the background. The put put
     %format is RGB so we can represent colorful particles
@@ -64,8 +72,18 @@ while hasFrame(v)
     [vidFrame, RGB, distance] = particle_distance_and_out( vidFrame ,RGB, Sp,centroid,particle_size,c_size );
     
     %We calculate the roundness of the cloud to see if it is ocluded
-    [roundness,param] = roundness_calc(Sp, threshold_square);
-    roundness
+    %OPPTION A
+    %[roundness,param] = roundness_calc(Sp, threshold_square);
+    
+    w_pix = sum(sum(out));
+    %Option B
+    if w_pix < 70
+        param = 3;
+    elseif w_pix < 100
+        param = 2;
+    else
+        param = 1;
+    end
     %Parameters initialization
     [R,Q,A,C] = kalmanInit(param);
 
@@ -112,9 +130,10 @@ while hasFrame(v)
     if mu(2) >= yp - 4
          mu(2) = yp - 4;
     end
-    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,2) = 256;
-    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,:) = 0;
-    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,2) = 256;
+    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 255;
+    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
+    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
+    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 255;
 
     %Calculate the max size of the square that will be painted around the
     %object
@@ -122,19 +141,24 @@ while hasFrame(v)
     [max_distance_x, max_distance_y] = rect_size(xp,yp,centroid(1),centroid(2),threshold_square,Sp,distance);
     [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,Sp,distance);
 
-    subplot(2,1,1); image(RGB); axis image
-    hold on
-    rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
-    hold on
-    rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
-    hold off
-    subplot(2,1,2); image(vidFrame); axis image
-    hold on
-    rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
-    hold on
-    rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
-    hold off
+    image(vidFrame); axis image;
+    
+    %For other outputs
+%     subplot(2,1,1); image(RGB); axis image
+%     hold on
+%     rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
+%     hold on
+%     rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
+%     hold off
+%     subplot(2,1,2); image(vidFrame); axis image
+%     hold on
+%     rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
+%     hold on
+%     rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
+%     hold off
+
     %We ensure the video output has the same frame rate as the origina
+    toc
     pause(abs((1/v.FrameRate)-toc));
     
 end

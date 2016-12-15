@@ -19,11 +19,11 @@ S = [round(rand(1,M)*(x));round(rand(1,M)*(y));(1/M)*ones(1,M)];
 
 %5000 for the other video
 %1000 por pinball
-R = 1000*diag([1e-2 1e-2]); %process noise covariance matrix
+R = 2500*diag([1e-2 1e-2]); %process noise covariance matrix
 
 %10 for other video
 %1 for pinball
-Q = 1*diag([1e-1;1e-1]); % measurement noise covariance matrix
+Q = 10*diag([1e-1;1e-1]); % measurement noise covariance matrix
 %Outlier threshold
 Lambda_psi = 0.0001;
 

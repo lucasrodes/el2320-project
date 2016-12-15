@@ -1,7 +1,7 @@
 clear all
 close all
 
-BEGINING = 40;
+BEGINING = 45;
 ENDING = 65;
 
 particle_size = 2;
@@ -9,6 +9,7 @@ c_size = 12;
 %Video input file
 v = VideoReader('Bouncing_Ball_Reference.avi');
 
+colour_thres = 1.55;
 %outputVideo = VideoWriter('out.avi');
 threshold_square = 15;
 %open(outputVideo)
@@ -27,27 +28,8 @@ colormap(gray(256));
 while hasFrame(v) || v.currentTime <= ENDING
     %Frame matrix
     vidFrame = readFrame(v);
-     
-% Parameter Initialization
-     
-    %Get rgb values
-    r = vidFrame(:, :, 1);
-    g = vidFrame(:, :, 2);
-    b = vidFrame(:, :, 3);
-    thres = 1.55;
-    %Thresholds
-    justGreen = g - r/thres - b/thres;
-    justRed = r - g/thres - b/thres;
-    justBlue = b - r/thres - g/thres;
-    %To gray
-    green = justGreen > 40;
-    red = justRed > 40;
-    blue = justBlue > 40;
-    %Binary pic
-    out = green + red + blue;
-    grayImage = 255 * uint8(out);
-    RGB = cat(3, grayImage, grayImage, grayImage);
-    %change to rgb
+    
+    RGB = imageTransformation( vidFrame, colour_thres)
     %%%%%%%%%%%%%%%%%%%%
     %%Particles filter%%
     %%%%%%%%%%%%%%%%%%%%

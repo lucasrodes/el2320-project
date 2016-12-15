@@ -3,7 +3,7 @@ function centroid = obtainMeasure()
 clear all;
 close all;
 %Video input file
-v = VideoReader('Main_code/Bouncing_Ball_Reference.avi');
+v = VideoReader('Bouncing_Ball_Reference.avi');
 
 %Specify that reading should begin 2.5 seconds from the beginning of the video.
 v.CurrentTime = 45;

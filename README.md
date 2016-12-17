@@ -34,25 +34,23 @@ We have used a Linear Kalman filter. It was simple, easy to implement and suffic
   
 - Process noise `R` and Measurement noise `Q`. These matrices are very relevant.  If `R >> Q` then Kalman assumes our motion model is not good and puts more weight on them mesaurements. Else if `Q >> R`,  then Kalman Filter assumes the measurements are not really trustful and Kalman puts more weight on the motion model. **Contrary to what we have done in the labs, we do update the value of Q, according to some criteria to measure the uncertainty of the measurement (image processing)**
 
-
-### Code structure of Kalman
-
-I have worked on files `KalmanInit.m`, `KalmanPredict.m` and `KalmanUpdate.m`.
-
-
-
 ### Motion model
 
 We have used two models. Constant speed and constant acceleration. For the example of pinball, constant speed outperformed the constant acceleration model.
 
 ## Code Structure
+We split the functions in three categories. Those related with image processing tasks, those dealing with particle filter and those from Kalman.
+
+The main function is `Filter_and_Kalman`
 
 ### Image Processing
 // TO DO
+
 // Functions used + brief definition
 
 ### Particle Filter
 // TO DO
+
 // Functions used + brief definition
 
 ### Kalman Filter

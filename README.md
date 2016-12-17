@@ -2,7 +2,7 @@
 
 Combination of Particle Filter and Kalman Filter approaches in a simple real-time object tracking example. WE aim at using the best of both in order to design a reliable object tracking algorithm for simple scenarios.
 
-## Process steos
+## Overview of the Algorithm
 
 1. We use **Image Processing** to obtain a binary image. Ideally, we want everything to be black except the ball (white). This makes the task easier for the Particle Filter.
 2. We then use **Particle Filter** to estimate the position of the object, putting more weight on white regions. We keep the centroid of the particle cloud.
@@ -44,9 +44,11 @@ We have used two models. Constant speed and constant acceleration. For the examp
 
 ### Image Processing
 //TO DO
+
 ### Particle Filter
 //TO DO
+
 ### Kalman Filter
-- `KalmanInit.m`: **Initialize** the parameters of the system, such as A, B, C, Q and R.
-- `KalmanPredict.m`: **Prediction** step of Kalman Filter.
-- `KalmanUpdate.m`: **Update** step of Kalman Filter.
+- `KalmanInit.m`: **Initialize** the parameters of the Kalman Filter, i.e. `A`, `B`, `C`, `Q` and `R`. The motion model is designed in this function. If `mmodel = 0`, then constant speed model is used. If `mmodel = 1` then constant acceleration model is used. 
+- `KalmanPredict.m`: **Prediction** step of Kalman Filter. We use the motion model to estimate/predict the position of the object.
+- `KalmanUpdate.m`: **Update** step of Kalman Filter. We use the masurements provided by the PF to reduce the uncertainty of our prediction.

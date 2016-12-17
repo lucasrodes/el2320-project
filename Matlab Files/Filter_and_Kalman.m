@@ -43,7 +43,7 @@ threshold_square = 30;
 %%%%%%%%%%%%%%%%%
 
 %Parameters initialization
-mmodel = 1; % motion model: 0 (constant speed) or 1 (constant acceleration)
+mmodel = 0; % motion model: 0 (constant speed) or 1 (constant acceleration)
 [R,Q,A,C] = kalmanInit(1, mmodel);
 
 while hasFrame(v)

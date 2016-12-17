@@ -1,14 +1,21 @@
 # el2320-project
 
-Combination of Particle Filter and Kalman Filter approaches in a simple real-time object tracking example.
+Combination of Particle Filter and Kalman Filter approaches in a simple real-time object tracking example. WE aim at using the best of both in order to design a reliable object tracking algorithm for simple scenarios.
 
-## Process
+## Process steos
 
-1. Image processing to obtain a black/white picture.
-2. Particle filter to estimate initial position of the object, i.e. (x1,x2), and speeds (v1,v2) [additionally, acceleration can be considered]
-3. Use the initial values computed in 2. to initialize the Kalman filter.
-4. Subsequently use the centroid of the particle cloud to provide the Kalman Filter with measurements z1,z2,..
-5. Modify the value of the matrix Q (measurement noise) when there are occulusions
+1. We use **Image Processing** to obtain a binary image. Ideally, we want everything to be black except the ball (white). This makes the task easier for the Particle Filter.
+2. We then use **Particle Filter** to estimate the position of the object, putting more weight on white regions. We keep the centroid of the particle cloud.
+3. We use **Kalman Filter** on top of the Particle filter. That is, the measurements from the Particle Fitler are passed to the Kalman Filter so that the motion model can be applied. This allows our system to be robust to occlusions.
+5. The value of `Q` (measurement noise) is modified (we make it higher) when there are occulusions. This is to ensure that the Kalman Filter takes protagonism in this cases, using the motion model to estimate the position of the object (measurements are poor). 
+
+**Note:** The initial position of the object, i.e. (x1, x2) and speeds (v1,v2) [acceleration might also be considered], are obtained using the Particle filter, which are then used to initialize the Kalman Filter. 
+
+## Image procesing
+//TO DO
+
+## Particle Filter
+//TO DO
 
 ## Kalman Filter
 
@@ -27,12 +34,19 @@ We have used a Linear Kalman filter. It was simple, easy to implement and suffic
 
 I have worked on files `KalmanInit.m`, `KalmanPredict.m` and `KalmanUpdate.m`.
 
-- `KalmanInit.m`: **Initialize** the parameters of the system, such as A, B, C, Q and R.
-- `KalmanPredict.m`: **Prediction** step of Kalman Filter.
-- `KalmanUpdate.m`: **Update** step of Kalman Filter.
+
 
 ### Motion model
 
 We have used two models. Constant speed and constant acceleration. For the example of pinball, constant speed outperformed the constant acceleration model.
 
-## Particle Filter
+## Code Structure
+
+### Image Processing
+//TO DO
+### Particle Filter
+//TO DO
+### Kalman Filter
+- `KalmanInit.m`: **Initialize** the parameters of the system, such as A, B, C, Q and R.
+- `KalmanPredict.m`: **Prediction** step of Kalman Filter.
+- `KalmanUpdate.m`: **Update** step of Kalman Filter.

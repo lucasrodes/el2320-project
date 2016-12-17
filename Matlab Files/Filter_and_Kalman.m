@@ -43,7 +43,8 @@ threshold_square = 30;
 %%%%%%%%%%%%%%%%%
 
 %Parameters initialization
-[R,Q,A,C] = kalmanInit(1);
+mmodel = 1; % motion model: 0 (constant speed) or 1 (constant acceleration)
+[R,Q,A,C] = kalmanInit(1, mmodel);
 
 while hasFrame(v)
     %Frame matrix
@@ -85,14 +86,14 @@ while hasFrame(v)
         param = 1;
     end
     %Parameters initialization
-    [R,Q,A,C] = kalmanInit(param);
+    [R,Q,A,C] = kalmanInit(param, mmodel);
 
     % (1) If we are at t = 0, we obtain the centroid and set it as 
     % the initial point. We use a variable count to know at which 
     % time step are we currently.
     if count == 0
         mu = centroid;
-        x1 = centroid; % initial position (t=0)
+        x0 = centroid; % initial position (t=0)
         count = count+1;
     % (2) When we are at t=1, we are able to obtain the initial
     % speed as the difference of the position at t=1 and t=0.
@@ -100,17 +101,38 @@ while hasFrame(v)
     % with an arbitrary value (high, since we are at the
     % beginning and we are not really sure!)
     elseif  count == 1
-        x2 = centroid; % position at t=1
-        vv = x2 - x1; % initial speed
-        x = [x2(1); x2(2); vv(1); vv(2)]; % Initial state
-        Sigma = 10*eye(4); % Uncertainty at the beginning
+        x1 = centroid; % position at t=1
+        vv1 = x1 - x0; % speed at t=1
+        if mmodel == 0
+            x = [x1(1); x1(2); vv1(1); vv1(2)]; % Initial state
+            Sigma = 10*eye(4); % Uncertainty at the beginning
+            % Prediction step
+            [mu_bar, Sigma_bar] = kalmanPredict(x, Sigma, A, R);
+            z = x1; % obtain measure (should be from PF)
+            % Update step
+            [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
+            count = count+2;
+        else
+            count = count+1;
+        end
+    % (3) Similar as in (2), we now are able to obtain the initial
+    % acceleration as the difference of the speed at t=1 and t=0. We also
+    % initialize the initial covariance matrix, which is now 6X6, with
+    % hight determinant, since is the beginning and we are not really sure
+    % about the state.
+    elseif  count == 2
+        x2 = centroid; % position at t=2
+        vv2 = x2 - x1; % speed at t=2
+        aa = vv2 - vv1; % initial acceleration
+        x = [x2(1); x2(2); vv2(1); vv2(2); aa(1) ; aa(2)]; % Initial state
+        Sigma = 10*eye(6); % Uncertainty at the beginning
         % Prediction step
         [mu_bar, Sigma_bar] = kalmanPredict(x, Sigma, A, R);
         z = x2; % obtain measure (should be from PF)
         % Update step
         [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
         count = count+1;
-    % (3) We enter this whenever t>=1. We proceed as following. 
+    % (4) We enter this whenever t>2.
     else
         % Prediction step
         [mu_bar, Sigma_bar] = kalmanPredict(mu, Sigma, A, R);
@@ -118,12 +140,11 @@ while hasFrame(v)
         % Measurement (should come from Particle Filter)
         z = centroid;
 
-
         % Update step
         [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
         count = count+1; 
-     
     end
+
     if mu(1) >= xp - 4
         mu(1) = xp - 4;
     end

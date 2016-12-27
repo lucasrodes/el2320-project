@@ -14,11 +14,17 @@ Section 1 presents the algorithm that we have used and further explains each par
 **Note:** The initial position of the object, i.e. (x1, x2) and speeds (v1,v2) [acceleration might also be considered], are obtained using the Particle filter, which are then used to initialize the Kalman Filter. 
 
 ### 1.1 Image procesing
+// TO DO
+Intenta hablar de esto brevemente:
+
 - Techniques to filter the image?
 - Criteria to modify `Q`? Measure roundness? What is it about? 
 - Scene change check?
 
 ### 1.2 Particle Filter
+// TO DO
+Intenta hablar de esto brevemente:
+
 - Re-sampling method used? How are weights allocated?
 - Number of particles?
 - Initialization of the particles?

@@ -1,106 +1,89 @@
-clear all
-close all
+clear all;
+close all;
 
-BEGINING = 40;
-ENDING = 65;
+%set to one if some areas want to be erased to check how god does the
+%kalman filter works
+OBSTACLES = 1;
 
-particle_size = 2;
-c_size = 12;
 %Video input file
-v = VideoReader('Bouncing_Ball_Reference.avi');
-
-%outputVideo = VideoWriter('out.avi');
-threshold_square = 15;
-%open(outputVideo)
-
-%Get image size x - vertical y - horizontal
-[x,y,~] = size(readFrame(v));
-% Parameter Initialization
-[S,R,Q,Lambda_psi] = init_Particles(x,y);
+v = VideoReader('NES Longplay [456] Pinball.avi');
 
 %Specify that reading should begin 2.5 seconds from the beginning of the video.
-v.CurrentTime = BEGINING;
+v.CurrentTime = 255;
 
-%for the moment I want this for the output
-colormap(gray(256));
+%Parameter to decide the colour filtering
+colour_thres = 1.55;
+
+%Flag to differenciate the first iteration from the following
+count = 0;
+
+%We need this to identify a certain color
+c_thres = 12;
+    
+%%%%%%%%%%%%%%%%%%%
+%%Particle filter%%
+%%%%%%%%%%%%%%%%%%%
+
+%Size of the particles
+particle_size = 1;
+
+%Size of the centroid
+c_size = 4;
+
+%outputVideo = VideoWriter('out.avi');
+threshold_square = 30;
+
+%Get image size x - vertical y - horizontal
+[xp,yp,~] = size(readFrame(v));
+% Parameter Initialization
+[Sp,Rp,Qp,Lambda_psi] = init_Particles(xp,yp);
 
 while hasFrame(v) || v.currentTime <= ENDING
+  
     tic
     %Frame matrix
-    vidFrame = readFrame(v);
-     
-% Parameter Initialization
-     
-    %Get rgb values
-    r = vidFrame(:, :, 1);
-    g = vidFrame(:, :, 2);
-    b = vidFrame(:, :, 3);
-    thres = 1.55;
-    %Thresholds
-    justGreen = g - r/thres - b/thres;
-    justRed = r - g/thres - b/thres;
-    justBlue = b - r/thres - g/thres;
-    %To gray
-    green = justGreen > 40;
-    red = justRed > 40;
-    blue = justBlue > 40;
-    %Binary pic
-    out = green + red + blue;
-    grayImage = 255 * uint8(out);
-    RGB = cat(3, grayImage, grayImage, grayImage);
-    %change to rgb
-    %%%%%%%%%%%%%%%%%%%%
-    %%Particles filter%%
-    %%%%%%%%%%%%%%%%%%%%
+    vidFrame = readFrame(v); 
+    
+    if OBSTACLES
+        vidFrame = Video_editing(vidFrame);
+    end
+    %Filters the image and transforms it in a binary image. White will
+    %represent high intensity colours and black the background. The put put
+    %format is RGB so we can represent colorful particles
+    [RGB, out] = imageTransformation(vidFrame,colour_thres,[187,187,187],c_thres);
    
-    %we get the particles and the outliers this way
-    [S] = Particles_filters(S,R,x,y,out,particle_size);
-    centroid = mean(S,2);
-    for i=1:size(S,2)
-       RGB(S(1,i)-round(particle_size/2)+1:S(1,i)+round(particle_size/2),S(2,i)-round(particle_size/2)+1:S(2,i)+round(particle_size/2),2) = 255;
-       RGB(S(1,i)-round(particle_size/2)+1:S(1,i)+round(particle_size/2),S(2,i)-round(particle_size/2)+1:S(2,i)+round(particle_size/2),1) = 0;
-       vidFrame(S(1,i)-round(particle_size/2)+1:S(1,i)+round(particle_size/2),S(2,i)-round(particle_size/2)+1:S(2,i)+round(particle_size/2),2) = 255;
-       %Calculate distances to centroid
-       distance(i) = sqrt((S(1,i)-centroid(1)).^2 + (S(2,i)-centroid(2)).^2);
-    end
+    %Particle_filters algorithm to calculate the particles in each time
+    %step
+    [Sp] = Particles_filters(Sp,Rp,xp,yp,out,particle_size);
     
+    %Centroid calculation
+    centroid_aux = mean(Sp,2);
+    centroid = centroid_aux(1:2);
     
+    %This function represents the particles in the binary and original
+    %pictures and compute the distances of each particle to the centroid in
+    %ascending order
+    [vidFrame, RGB, distance] = particle_distance_and_out( vidFrame ,RGB, Sp,centroid,particle_size,c_size );
+   
+    vidFrame(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2))-4 +1):round(centroid(2))+4,3) = 255;
+    vidFrame(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2))-4 +1):round(centroid(2))+4,1:2) = 0;
+    RGB(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2))-4 +1):round(centroid(2))+4,1:2) = 0;
+    RGB(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2))-4 +1):round(centroid(2))+4,3) = 255;
+   
+    [max_distance_x, max_distance_y] = rect_size(xp,yp,centroid(1),centroid(2),threshold_square,distance,Sp);
+    %writeVideo(outputVideo,vidFrame)
     
-    %Paint the centroid
-    RGB(centroid(1)-round(c_size/2)+1:centroid(1)+round(c_size/2),centroid(2)-round(c_size/2)+1:centroid(2)+round(c_size/2),3) = 255;
-    RGB(centroid(1)-round(c_size/2)+1:centroid(1)+round(c_size/2),centroid(2)-round(c_size/2)+1:centroid(2)+round(c_size/2),1) = 0;
-    vidFrame(centroid(1)-round(c_size/2)+1:centroid(1)+round(c_size/2),centroid(2)-round(c_size/2)+1:centroid(2)+round(c_size/2),:) = 255;
+%     image(vidFrame); axis image;
     
-    distance = sort(distance);
-    max_distance = distance(size(S,2) - threshold_square);
-    if centroid(1) > x/2
-        if max_distance > x - centroid(1)
-        max_distance = round(x-centroid(1) - 1);
-        end
-    elseif centroid(1) <= x/2
-        if max_distance > centroid(1)
-        max_distance = round(centroid(1) - 1);
-        end
-    end
+    %For other outputs
     subplot(2,1,1); image(RGB); axis image
     hold on
-    rectangle('position',[centroid(2)-max_distance centroid(1)-max_distance 2*max_distance 2*max_distance], 'EdgeColor','r')
+    rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
     hold off
     subplot(2,1,2); image(vidFrame); axis image
     hold on
-    rectangle('position',[centroid(2)-max_distance centroid(1)-max_distance 2*max_distance 2*max_distance], 'EdgeColor','r')
+    rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
     hold off
-   
-    %writeVideo(outputVideo,vidFrame)
-    %%%%%%%%%%%%%%%%%%%
-    %%Post operations%%
-    %%%%%%%%%%%%%%%%%%%
-%     
-%     centroid(k,:) = round(stats(k).Centroid);
-%     vidFrame((centroid(k,2)-4:centroid(k,2)+4),(centroid(k,1)-4:centroid(k,1)+4),:) = 256;
-%     distance = sqrt(area/pi);
-%     vidFrame = drawCircle(vidFrame,centroid(k,2),centroid(k,1),distance);
-
 
     %We ensure the video output has the same frame rate as the original
     pause(abs((1/v.FrameRate)-toc));

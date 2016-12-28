@@ -9,7 +9,7 @@ OBSTACLES = 1;
 v = VideoReader('NES Longplay [456] Pinball.avi');
 
 %Specify that reading should begin 2.5 seconds from the beginning of the video.
-v.CurrentTime = 255;
+v.CurrentTime = 254;
 
 %Parameter to decide the colour filtering
 colour_thres = 1.55;
@@ -19,24 +19,14 @@ count = 0;
 
 %We need this to identify a certain color
 c_thres = 12;
-    
-%%%%%%%%%%%%%%%%%%%
-%%Particle filter%%
-%%%%%%%%%%%%%%%%%%%
 
-%Size of the particles
-particle_size = 1;
+%Get image size x - vertical y - horizontal
+[xp,yp,~] = size(readFrame(v));
 
 %Size of the centroid
 c_size = 4;
 
-%outputVideo = VideoWriter('out.avi');
 threshold_square = 30;
-
-%Get image size x - vertical y - horizontal
-[xp,yp,~] = size(readFrame(v));
-% Parameter Initialization
-[Sp,Rp,Qp,Lambda_psi] = init_Particles(xp,yp);
 
 %%%%%%%%%%%%%%%%%
 %%Kalman filter%%
@@ -47,10 +37,11 @@ mmodel = 0; % motion model: 0 (constant speed) or 1 (constant acceleration)
 [R,Q,A,C] = kalmanInit(1, mmodel);
 
 while hasFrame(v)
-    tic
     
+    tic
     %Frame matrix
-    vidFrame = readFrame(v); 
+    vidFrame = readFrame(v);
+    
     
     if OBSTACLES
         vidFrame = Video_editing(vidFrame);
@@ -59,35 +50,36 @@ while hasFrame(v)
     %represent high intensity colours and black the background. The put put
     %format is RGB so we can represent colorful particles
     [RGB, out] = imageTransformation(vidFrame,colour_thres,[187,187,187],c_thres);
-   
-    %Particle_filters algorithm to calculate the particles in each time
-    %step
-    [Sp] = Particles_filters(Sp,Rp,xp,yp,out,particle_size);
     
-    %Centroid calculation
-    centroid_aux = mean(Sp,2);
-    centroid = centroid_aux(1:2);
-    
-    %This function represents the particles in the binary and original
-    %pictures and compute the distances of each particle to the centroid in
-    %ascending order
-    [vidFrame, RGB, distance] = particle_distance_and_out( vidFrame ,RGB, Sp,centroid,particle_size,c_size );
-    
-    %We calculate the roundness of the cloud to see if it is ocluded
-    %OPPTION A
-    %[roundness,param] = roundness_calc(Sp, threshold_square);
+    [B,L] = bwboundaries(out,'noholes');
+    %Check roundness
+    stats = regionprops(L,'Area','Centroid');
     
     %Compute the number of white pixels in the image to calculate the
     %oclusion
     w_pix = sum(sum(out));
     %Option B
-    if w_pix < 70
+    if w_pix < 10
+        centroid = centroid;
+        distance = 0;
         param = 3;
+    elseif w_pix < 70
+        param = 3;
+        centroid(2) = round(stats(1).Centroid(1));
+        centroid(1) = round(stats(1).Centroid(2));
+        distance = sqrt(round(stats(1).Area)/pi);
     elseif w_pix < 100
         param = 2;
+        centroid(2) = round(stats(1).Centroid(1));
+        centroid(1) = round(stats(1).Centroid(2));
+        distance = sqrt(round(stats(1).Area)/pi);
     else
         param = 1;
+        centroid(2) = round(stats(1).Centroid(1));
+        centroid(1) = round(stats(1).Centroid(2));
+        distance = sqrt(round(stats(1).Area)/pi);
     end
+    centroid = centroid;
     %Parameters initialization
     [R,Q,A,C] = kalmanInit(param, mmodel);
 
@@ -158,31 +150,14 @@ while hasFrame(v)
     vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
     RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
     RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 255;
+   
+    [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,distance);
 
-    %Calculate the max size of the square that will be painted around the
-    %object
-    
-    [max_distance_x, max_distance_y] = rect_size(xp,yp,centroid(1),centroid(2),threshold_square,distance,Sp);
-    [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,distance,Sp);
-
-    image(vidFrame); axis image;
-    
-    %For other outputs
-%     subplot(2,1,1); image(RGB); axis image
-%     hold on
-%     rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
+    image(RGB); axis image;
 %     hold on
 %     rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
-%     hold off
-%     subplot(2,1,2); image(vidFrame); axis image
-%     hold on
-%     rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
-%     hold on
-%     rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
-%     hold off
 
-    %We ensure the video output has the same frame rate as the origina
-    toc
-    pause(abs((1/v.FrameRate)-toc));
-    
+    %We ensure the video output has the same frame rate as the original
+    pause((1/v.FrameRate));
+   
 end

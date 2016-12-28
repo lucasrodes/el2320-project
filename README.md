@@ -33,13 +33,9 @@ The implementation of the Particle filter for our goals is simple. The main obje
 
 The prediction method used was a random movement method,proportional to the variance of the process. We chose this method as we could not use any input methods such as the speed, position or others measurements to compute a linear or circular movement using this measurements. In this case, the only input is the frames of the video input. 
 
-The number of particles is 1000, to make sure that the ball is quickly idenfied every time it appears again (after disappearing behind the erased areas of the image. The initialization was done randomly, to ensure that the particles were correctly spread all over the image. We used a high value of the process variance, as we wanted the the cloud of particles spread quickly all over the image right after the ball dissapear in order to ensure that tha ball was detected again quickly. The measurement variance is much lower
+The number of particles is 1000, to make sure that the ball is quickly idenfied every time it appears again (after disappearing behind the erased areas of the image. The initialization was done randomly, to ensure that the particles were correctly spread all over the image. We used a high value of the process variance, as we wanted the the cloud of particles spread quickly all over the image right after the ball dissapear in order to ensure that tha ball was detected again quickly. The measurement variance was not used as there was not any outlier detection used in our code. 
 
 The re-sampling method used was the systematic one, as the performance was quicker and more accurate. 
-- Re-sampling method used? How are weights allocated?
-- Number of particles?
-- Initialization of the particles?
-- Model of the motion of the particles used?
 
 ### 1.3 Kalman Filter
 
@@ -63,14 +59,19 @@ We split the functions in three categories. Those related with image processing 
 The main function is `Filter_and_Kalman`
 
 ### 2.1 Image Processing
-// TO DO
 
-// Functions used + brief definition
+- `imageTransformation.m`: **Image pre-processing** pre-processing of the image. The output is an image in with the object that is going to be tracked is represented by white pixels and the rest of the image by black pixels.
+- `Video_editing.m`: **Video editing** Each frame of the video are edited to change the colour of certain areas of the video, so that the ball dissapears when it goes through this areas. This is done to check the performance of the Kalman filter when the ball is not correctly detected. 
+- `rect_size.m`: **Rectangles size** determines the max size of the squares printed around the tracked ball in order to ensure that Matlab won't try to print these squares out of the bounds of the image. 
 
 ### 2.2 Particle Filter
-// TO DO
 
-// Functions used + brief definition
+- `init_Particles.m`: **Initialize** Initialize the particles randomly and set the process noise R.
+- `Particles_filters.m`: **Main Particle filter process** in this function, the prediction, weightening and re-sampling is done.
+- `weight_Particles.m`: **Weightening** determines the weight of each particle. High weight for particles situated over white pixels and low weight for the ones over black pixels. 
+- `Predict_rand.m`: **Prediction** predicts the movement of the particles. As the only input we have is the each frame, this prediction is done randomly but proportional to the process variance. 
+- `systematic_resample_particles.m`: **Systematic resampling** systematic resampling method.
+- `multinomial_resample_particle.m`: **Multinomial resampling** multinomial resampling method.
 
 ### 2.3 Kalman Filter
 - `KalmanInit.m`: **Initialize** the parameters of the Kalman Filter, i.e. `A`, `B`, `C`, `Q` and `R`. The motion model is designed in this function. If `mmodel = 0`, then constant speed model is used. If `mmodel = 1` then constant acceleration model is used. 

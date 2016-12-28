@@ -28,9 +28,14 @@ The lasts step was to print the particles, the centroid of the detected object a
 The square was printed using a Matlab function. 
 
 ### 1.2 Particle Filter
-// TO DO
-Intenta hablar de esto brevemente:
 
+The implementation of the Particle filter for our goals is simple. The main objective of the filter is to localize the white pixels in the binary image. Then the center of the ball is obtained calculating the centroid of this cloud of particles. Then, the weightening is easy to understand: if the particle is situated in a white pixel, it will be given a high weight, otherwise, its weight will be low. As all the white pixels will have the same weight, calculating the centroid of this cloud of particles to obtain the centerof the object is a good method. 
+
+The prediction method used was a random movement method,proportional to the variance of the process. We chose this method as we could not use any input methods such as the speed, position or others measurements to compute a linear or circular movement using this measurements. In this case, the only input is the frames of the video input. 
+
+The number of particles is 1000, to make sure that the ball is quickly idenfied every time it appears again (after disappearing behind the erased areas of the image. The initialization was done randomly, to ensure that the particles were correctly spread all over the image. We used a high value of the process variance, as we wanted the the cloud of particles spread quickly all over the image right after the ball dissapear in order to ensure that tha ball was detected again quickly. The measurement variance is much lower
+
+The re-sampling method used was the systematic one, as the performance was quicker and more accurate. 
 - Re-sampling method used? How are weights allocated?
 - Number of particles?
 - Initialization of the particles?

@@ -14,12 +14,18 @@ Section 1 presents the algorithm that we have used and further explains each par
 **Note:** The initial position of the object, i.e. (x1, x2) and speeds (v1,v2) [acceleration might also be considered], are obtained using the Particle filter, which are then used to initialize the Kalman Filter. 
 
 ### 1.1 Image procesing
-// TO DO
-Intenta hablar de esto brevemente:
 
-- Techniques to filter the image?
-- Criteria to modify `Q`? Measure roundness? What is it about? 
-- Scene change check?
+As the aim of the project was to implement a combination of Particle and Kalman filter in a real-time object tracking example, we needed some image pre-preocessing to do it so. The object tracked is the ball in the NES´s pin-ball arcade game. We used a video stream as an input, and each frame is analyzed individually in order to achieve the real-time processing required. 
+
+Each frame was processed in order to have a binary image in which the ball was represented by the white colour. To achieve this, the colour grey ( 187, 187, 187) was filtered as the ball has this colour. This grey colour plus a threshold was transform to white, and the rest of the image to black. This was automatically done using comparators. 
+
+Also, the original frames where edited so that some areas of the frame were erased to show the performance of the Kalman filter when the measurement is not good; when the ball moves over this areas, it is not detected as it is erased, and then only the Kalman filter is predicting the trayectory. This areas were transformed to pink colour in the original frame and as a consequence the ball will not be detected if it is inside this area. 
+
+Then, to correctly implement the combination of both filters, the value of Q (measurements variance) of the Kalman filter had to adaptively change to ensure the correct tracking of the ball when the oclussion is huge. This was done checking the size of the object detected using image processing. If the number of white pixels in the binary image is greater than a threshold, it would mean that the object is correctly filtered. Then, as the measurement is good enough, Q will be low. If the number of pixels is smaller than a minimum threshold, it would mean that the ball is not fully detected as it is passing under the erased area. Then, the value of Q will increase considerably as now we want to trust our predictions more than the measurements. If the number of pixels is between these two thresholds, the Q will get an intermediate value to smooth the transition between the two extreme cases. 
+
+The lasts step was to print the particles, the centroid of the detected object and a square arround this object. Both the particles and the centroids were printed changing the colour values of the coordinates of these points to different colours of our election. 
+
+The square was printed using a Matlab function. 
 
 ### 1.2 Particle Filter
 // TO DO

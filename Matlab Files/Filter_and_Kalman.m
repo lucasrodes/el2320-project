@@ -47,9 +47,10 @@ mmodel = 0; % motion model: 0 (constant speed) or 1 (constant acceleration)
 [R,Q,A,C] = kalmanInit(1, mmodel);
 
 while hasFrame(v)
+    tic
+    
     %Frame matrix
     vidFrame = readFrame(v); 
-    tic
     
     if OBSTACLES
         vidFrame = Video_editing(vidFrame);
@@ -76,6 +77,8 @@ while hasFrame(v)
     %OPPTION A
     %[roundness,param] = roundness_calc(Sp, threshold_square);
     
+    %Compute the number of white pixels in the image to calculate the
+    %oclusion
     w_pix = sum(sum(out));
     %Option B
     if w_pix < 70
@@ -162,7 +165,7 @@ while hasFrame(v)
     [max_distance_x, max_distance_y] = rect_size(xp,yp,centroid(1),centroid(2),threshold_square,Sp,distance);
     [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,Sp,distance);
 
-    image(vidFrame); axis image;
+    image(RGB); axis image;
     
     %For other outputs
 %     subplot(2,1,1); image(RGB); axis image

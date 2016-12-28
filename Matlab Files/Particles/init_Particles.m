@@ -6,7 +6,7 @@
 %			Q:				2X2
 %           Lambda_psi:     1X1
 %           start_pose:     3X1
-function [S,R,Q,Lambda_psi] = init_Particles(x,y)
+function [S,R,Lambda_psi] = init_Particles(x,y)
 
 %Particles number
 M = 1000;
@@ -21,9 +21,6 @@ S = [round(rand(1,M)*(x));round(rand(1,M)*(y));(1/M)*ones(1,M)];
 %1000 por pinball
 R = 2500*diag([1e-2 1e-2]); %process noise covariance matrix
 
-%10 for other video
-%1 for pinball
-Q = 10*diag([1e-1;1e-1]); % measurement noise covariance matrix
 %Outlier threshold
 Lambda_psi = 0.0001;
 

@@ -36,7 +36,7 @@ threshold_square = 30;
 %Get image size x - vertical y - horizontal
 [xp,yp,~] = size(readFrame(v));
 % Parameter Initialization
-[Sp,Rp,Qp,Lambda_psi] = init_Particles(xp,yp);
+[Sp,Rp,Lambda_psi] = init_Particles(xp,yp);
 
 while hasFrame(v) || v.currentTime <= ENDING
   

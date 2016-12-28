@@ -21,7 +21,7 @@ rm = rand()/M; % random number in the interval 0,1/M
 %ones
 for m = 1: M
    
-    %We finde the frist value that is biiger than the random number
+    %We finde the frist value that is bigger than the random number
     i = find( CDF >= rm + (m-1)/M , 1);
     S(:,m) = S_bar(:,i);
     %We have to reinitialize the values of the weights for the next step

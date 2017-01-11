@@ -1,12 +1,15 @@
 clear all;
 close all;
+addpath(genpath('Image_Transformation'));
+addpath(genpath('Kalman'));
+addpath(genpath('Particles'));
 
 %set to one if some areas want to be erased to check how god does the
 %kalman filter works
 OBSTACLES = 1;
 
 %Video input file
-v = VideoReader('NES Longplay [456] Pinball.avi');
+v = VideoReader('Videos/NES_Longplay_[456_Pinball.mov');
 
 %Specify that reading should begin 2.5 seconds from the beginning of the video.
 v.CurrentTime = 255;

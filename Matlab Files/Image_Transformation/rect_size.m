@@ -4,7 +4,7 @@ function [max_distance_x, max_distance_y] = rect_size(xp,yp,centroidx,centroidy,
         max_distance_x = distance;
         max_distance_y = distance;
     else
-    max_distance_x = distance(size(Sp,2) - threshold_square)
+    max_distance_x = distance(size(Sp,2) - threshold_square);
     max_distance_y = distance(size(Sp,2) - threshold_square);
     end
     

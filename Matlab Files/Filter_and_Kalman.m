@@ -1,12 +1,15 @@
 clear all;
 close all;
-
+addpath(genpath('Image_Transformation'));
+addpath(genpath('Kalman'));
+addpath(genpath('Particles'));
+%addpath(genpath('C:\Program Files\MATLAB\Work'));
 %set to one if some areas want to be erased to check how god does the
 %kalman filter works
 OBSTACLES = 1;
 
 %Video input file
-v = VideoReader('NES Longplay [456] Pinball.avi');
+v = VideoReader('Videos/NES_Longplay_[456_Pinball.mov');
 
 %Specify that reading should begin 2.5 seconds from the beginning of the video.
 v.CurrentTime = 255;
@@ -58,7 +61,8 @@ while hasFrame(v)
     %Filters the image and transforms it in a binary image. White will
     %represent high intensity colours and black the background. The put put
     %format is RGB so we can represent colorful particles
-    [RGB, out] = imageTransformation(vidFrame,colour_thres,[187,187,187],c_thres);
+    [RGB, out] = imageTransformation(vidFrame,colour_thres,...
+        [187,187,187],c_thres);
    
     %Particle_filters algorithm to calculate the particles in each time
     %step
@@ -71,7 +75,8 @@ while hasFrame(v)
     %This function represents the particles in the binary and original
     %pictures and compute the distances of each particle to the centroid in
     %ascending order
-    [vidFrame, RGB, distance] = particle_distance_and_out( vidFrame ,RGB, Sp,centroid,particle_size,c_size );
+    [vidFrame, RGB, distance] = particle_distance_and_out( vidFrame ,...
+        RGB, Sp,centroid,particle_size,c_size );
     
     %We calculate the roundness of the cloud to see if it is ocluded
     %OPPTION A
@@ -154,17 +159,21 @@ while hasFrame(v)
     if mu(2) >= yp - 4
          mu(2) = yp - 4;
     end
-    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 255;
-    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
-    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
-    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 255;
+    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 ... 
+        +1):round(mu(2))+4,3) = 255;
+    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 ...
+        +1):round(mu(2))+4,1:2) = 0;
+    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 ...
+        +1):round(mu(2))+4,1:2) = 0;
+    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 ...
+        +1):round(mu(2))+4,3) = 255;
 
     %Calculate the max size of the square that will be painted around the
     %object
-    
-    [max_distance_x, max_distance_y] = rect_size(xp,yp,centroid(1),centroid(2),threshold_square,distance,Sp);
-    [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,distance,Sp);
-
+    [max_distance_x, max_distance_y] = rect_size(xp,yp,centroid(1), ...
+        centroid(2),threshold_square,distance,Sp);
+    [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1), ...
+        mu(2),threshold_square,distance,Sp);
     image(vidFrame); axis image;
     
     %For other outputs
@@ -182,7 +191,7 @@ while hasFrame(v)
 %     hold off
 
     %We ensure the video output has the same frame rate as the origina
-    toc
+    %toc
     pause(abs((1/v.FrameRate)-toc));
     
 end

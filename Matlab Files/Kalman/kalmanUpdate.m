@@ -12,7 +12,7 @@
 %           Sigma(t)          nXn
 %
 function [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q)
-    
+
     v = z - C*mu_bar; % measurement innovation
     S = C*Sigma_bar*C'+Q; % innovation covariance
     K = Sigma_bar*C'/S; % Kalman gain

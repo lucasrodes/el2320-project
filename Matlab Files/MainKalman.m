@@ -6,7 +6,7 @@ close all;
 OBSTACLES = 1;
 
 %Video input file
-v = VideoReader('NES Longplay [456] Pinball.avi');
+v = VideoReader('Videos/NES_Longplay_[456_Pinball.mov');
 
 %Specify that reading should begin 2.5 seconds from the beginning of the video.
 v.CurrentTime = 254;
@@ -103,7 +103,7 @@ while hasFrame(v)
             [mu_bar, Sigma_bar] = kalmanPredict(x, Sigma, A, R);
             z = x1; % obtain measure (should be from PF)
             % Update step
-            [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
+            [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z', C, Q);
             count = count+2;
         else
             count = count+1;
@@ -144,23 +144,23 @@ while hasFrame(v)
     if mu(2) >= yp - 4
          mu(2) = yp - 4;
     end
-    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 255;
-    vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
-    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
-    RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 255;
+    %vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 255;
+    %vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
+    %RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1:2) = 0;
+    %RGB(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,3) = 255;
    
-    [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,distance);
+    %[max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,distance);
 
 %     image(vidFrame); axis image;
     
     %For other outputs
-    subplot(2,1,1); image(RGB); axis image
+    subplot(1,2,1); image(RGB); axis image
     hold on
-    rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
-    hold off
-    subplot(2,1,2); image(vidFrame); axis image
-    hold on
-    rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
+    %rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
+    %hold off
+    subplot(1,2,2); image(vidFrame); axis image
+    %hold on
+    %rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
     hold off
 
     %We ensure the video output has the same frame rate as the original

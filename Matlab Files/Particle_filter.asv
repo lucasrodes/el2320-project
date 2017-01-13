@@ -1,20 +1,5 @@
-clear all;
-close all;
-addpath(genpath('Image_Transformation'));
-addpath(genpath('Kalman'));
-addpath(genpath('Particles'));
+function centroid = Particle_filter( vidFrame, verbose)
 
-%set to one if some areas want to be erased to check how god does the
-%kalman filter works
-OBSTACLES = 1;
-verbose = 1;
-%Video input file
-v = VideoReader('Videos/NES_Longplay_[456_Pinball.mov');
-
-%Specify that reading should begin 2.5 seconds from the beginning of the video.
-v.CurrentTime = 255;
-
-ENDING = 260;
 
 %Parameter to decide the colour filtering
 colour_thres = 1.55;
@@ -45,22 +30,12 @@ count_er = 1;
 % Parameter Initialization
 [Sp,Rp,Lambda_psi] = init_Particles(xp,yp);
 
-while (hasFrame(v) && v.currentTime <= ENDING)
-    
-    %Frame matrix
-    vidFrameOr = readFrame(v); 
-    
-    if OBSTACLES
-        vidFrame = Video_editing(vidFrameOr);
-    else
-        vidFrame = vidFrameOr;
-    end
     
     %Filters the image and transforms it in a binary image. White will
     %represent high intensity colours and black the background. The put put
     %format is RGB so we can represent colorful particles
-
     [RGB, out] = imageTransformation(vidFrame,colour_thres,[187,187,187],c_thres);
+    
     %Particle_filters algorithm to calculate the particles in each time
     %step
     [Sp] = Particles_filters(Sp,Rp,xp,yp,out,particle_size);
@@ -101,8 +76,3 @@ while (hasFrame(v) && v.currentTime <= ENDING)
         count_er = count_er+ 1;
     end
     
-    
-end
-
-
-%close(outputVideo)

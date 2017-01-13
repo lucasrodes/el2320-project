@@ -37,7 +37,7 @@ else
     out_bin = green.*red.*blue;
 
     %We smooth the edges and fill the gaps
-    out_bin = bwareaopen(out_bin,60);
+    out_bin = bwareaopen(out_bin,10);
      
     %Conver to RGB
     grayImage = 255 * uint8(out_bin);

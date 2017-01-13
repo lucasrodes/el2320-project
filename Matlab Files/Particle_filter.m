@@ -37,8 +37,7 @@ switch RESAMPLE_MODE
 end
 
 %Centroid calculation
-centroid_aux = mean(S,2);
-centroid = centroid_aux(1:2);
+centroid = KDE(S,[xp yp]);
     
 end
     

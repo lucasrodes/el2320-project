@@ -5,8 +5,8 @@ clear all;
 close all;
 
 PARTICLES = 1;
-KALMAN = 1;
-BOTH = 1;
+KALMAN = 0;
+BOTH = 0;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -30,10 +30,10 @@ OBSTACLES = 1;
 v = VideoReader('Videos/NES_Longplay_[456_Pinball.mov');
 
 %Specify when in the video (in s) should the program start reading
-v.CurrentTime = 255;
+v.CurrentTime = 261;
 
 %Set the finishing time. Length then will be ENDING - v.CurrentTime
-ENDING = 260;
+ENDING = 290;
 
 %Variable to ensure correct representation of particles and estimated
 %estates
@@ -182,7 +182,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                  vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,2:3) = 0;
 
                  [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,distance);
-                image(vidFrame); axis image;
+                %image(RGB); axis image;
             
                 hold on
                 rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','r')
@@ -199,7 +199,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
 
                         [max_distance_x, max_distance_y] = rect_size(xp,yp,centroidPart(1),centroidPart(2),threshold_square,distanceP,Sp);
                     if PARTICLES
-                        image(vidFrame); axis image;
+                        image(RGB); axis image;
                         hold on
                         rectangle('position',[abs(centroidPart(2)-max_distance_y) abs(centroidPart(1)-max_distance_x) abs(2*max_distance_y) abs(2*max_distance_x)], 'EdgeColor','b')
                         hold off
@@ -209,14 +209,8 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                         vidFrame(abs(round(muPKF(1))-4 + 1):round(muPKF(1))+4,abs(round(muPKF(2))-4 +1):round(muPKF(2))+4,1) = 255;
                         vidFrame(abs(round(muPKF(1))-4 + 1):round(muPKF(1))+4,abs(round(muPKF(2))-4 +1):round(muPKF(2))+4,2:3) = 0;
                         [max_distance_xK, max_distance_yK] = rect_size(xp,yp,muPKF(1),muPKF(2),threshold_square,distanceP,Sp);
-                    image(vidFrame); axis image;
+                    %image(vidFrame); axis image;
     
-                    %For other outputs
-                %     subplot(1,2,1); image(RGB); axis image
-                %     hold on
-                %     %rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
-                %     %hold off
-                %     subplot(1,2,2); image(vidFrame); axis image
                     hold on
                     rectangle('position',[abs(centroidPart(2)-max_distance_y) abs(centroidPart(1)-max_distance_x) abs(2*max_distance_y) abs(2*max_distance_x)], 'EdgeColor','b')
                     rectangle('position',[abs(muPKF(2)-max_distance_yK) abs(muPKF(1)-max_distance_xK) abs(2*max_distance_yK) abs(2*max_distance_xK)], 'EdgeColor','r')
@@ -237,12 +231,15 @@ if verbose == 1
         grid on
         if PARTICLES
             plot(errorPF(10:end), 'DisplayName', 'Particle Filter');
+            mean(errorPF)
         end
         if KALMAN
             plot(errorKF(10:end), 'DisplayName', 'Kalman Filter');
+            mean(errorKF)
         end
         if BOTH
             plot(errorPKF(10:end),'DisplayName', 'Combined Filter');
+            mean(errorPKF)
         end
         legend('show');
 end

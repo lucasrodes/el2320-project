@@ -1,5 +1,7 @@
-function [count, mu, Sigma] = KalmanAlgorithm(count, mu, Sigma, z, ...
+function [count, mu, Sigma, vidFrame] = KalmanAlgorithm(vidFrame, count, mu, Sigma, z, ...
                                                A, R, C, Q, mmodel)
+    
+    [xp,yp,~] = size(vidFrame);
     z = z';
     % (1) If we are at t = 0, we obtain the centroid and set it as 
     % the initial point. We use a variable count to know at which 
@@ -55,5 +57,11 @@ function [count, mu, Sigma] = KalmanAlgorithm(count, mu, Sigma, z, ...
         % Update step
         [mu, Sigma] = kalmanUpdate(mu_bar, Sigma_bar, z, C, Q);
         count = count+1; 
+    end
+    if mu(1) >= xp - 4
+        mu(1) = xp - 4;
+    end
+    if mu(2) >= yp - 4
+         mu(2) = yp - 4;
     end
 end

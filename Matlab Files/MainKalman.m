@@ -80,7 +80,8 @@ while hasFrame(v)
     end
     %Parameters initialization
     [R,Q,A,C] = kalmanInit(param, mmodel);
-
+    [count,mu,Sigma] = KalmanAlgorithm(count, mu, Sigma, z, ...
+                                               A, R, C, Q, mmodel);
     % (1) If we are at t = 0, we obtain the centroid and set it as 
     % the initial point. We use a variable count to know at which 
     % time step are we currently.

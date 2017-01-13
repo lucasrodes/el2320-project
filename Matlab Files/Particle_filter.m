@@ -1,4 +1,4 @@
-function [centroid,S] = Particle_filter( vidFrame, RGB,out, Sp, Rp ,verbose)
+function [centroid,S, vidFrame, distance] = Particle_filter( vidFrame, RGB,out, Sp, Rp ,verbose)
   
 %%%%%%%%%%%%%%%%%%%
 %%Particle filter%%
@@ -11,7 +11,6 @@ particle_size = 1;
 c_size = 4;
 
 %outputVideo = VideoWriter('out.avi');
-threshold_square = 30;
 
 %image size
 [xp,yp,~] = size(vidFrame);
@@ -53,22 +52,6 @@ vidFrame(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2
 vidFrame(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2))-4 +1):round(centroid(2))+4,1:2) = 0;
 RGB(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2))-4 +1):round(centroid(2))+4,1:2) = 0;
 RGB(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2))-4 +1):round(centroid(2))+4,3) = 255;
-
-[max_distance_x, max_distance_y] = rect_size(xp,yp,centroid(1),centroid(2),threshold_square,distance,S);
-
-if verbose == 2
-    
-    image(vidFrame); axis image;
-
-    %For other outputs
-%     subplot(2,1,1); image(RGB); axis image
-%     hold on
-%     rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
-%     hold off
-%     subplot(2,1,2); image(vidFrame); axis image
-    hold on
-    rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
-    hold off
     
 end
     

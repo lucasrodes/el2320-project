@@ -1,10 +1,5 @@
-function error = mse_plot( estimated_st, vidFrameOr,c_thres,colour_thres)
-    
-    %Filters the image and transforms it in a binary image. White will
-    %represent high intensity colours and black the background. The put put
-    %format is RGB so we can represent colorful particles
-    [~, out] = imageTransformation(vidFrameOr,colour_thres,[187,187,187],c_thres);
-
+function error = mse_plot( estimated_st, out)
+   
     [~,L] = bwboundaries(out,'noholes');
     %Check roundness
     stats = regionprops(L,'Area','Centroid');

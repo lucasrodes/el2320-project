@@ -31,6 +31,11 @@ c_thres = 12;
 %Error counter
 count_er = 1;
 
+particle_size = 1;
+
+%Size of the centroid
+c_size = 4;
+
 %Get image size x - vertical y - horizontal
 [xp,yp,~] = size(readFrame(v));
 % Parameter Initialization
@@ -55,9 +60,17 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     [RGB, out] = imageTransformation(vidFrame,colour_thres,[187,187,187],c_thres);
     
     %Apply the particle filter algorithm
-    [centroid, Sp,vidFrame, distance] = Particle_filter(vidFrame, RGB, out, Sp, Rp , verbose);
+    [centroid, Sp,vidFrame] = Particle_filter(vidFrame, RGB, out, Sp, Rp , verbose);
 
     if verbose == 2
+        %This function represents the particles in the binary and original
+        %pictures and compute the distances of each particle to the centroid in
+        %ascending order
+        [vidFrame, RGB, distance] = particle_distance_and_out( vidFrame ,RGB, Sp,centroid,particle_size,c_size );
+
+        vidFrame(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2))-4 +1):round(centroid(2))+4,3) = 255;
+        vidFrame(abs(round(centroid(1))-4 + 1):round(centroid(1))+4,abs(round(centroid(2))-4 +1):round(centroid(2))+4,1:2) = 0;
+        
 
         [max_distance_x, max_distance_y] = rect_size(xp,yp,centroid(1),centroid(2),threshold_square,distance,Sp);
 

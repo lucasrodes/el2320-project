@@ -104,5 +104,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     
 end
 
-
+if verbose == 1
+    y = one
+    plot(error,
 %close(outputVideo)

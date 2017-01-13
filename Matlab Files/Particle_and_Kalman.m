@@ -186,9 +186,9 @@ while hasFrame(v)
 %     subplot(2,1,2); image(vidFrame); axis image
 %     hold on
 %     rectangle('position',[centroid(2)-max_distance_y centroid(1)-max_distance_x 2*max_distance_y 2*max_distance_x], 'EdgeColor','r')
-%     hold on
-%     rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
-%     hold off
+    hold on
+    rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','g')
+    hold off
 
     %We ensure the video output has the same frame rate as the origina
     %toc

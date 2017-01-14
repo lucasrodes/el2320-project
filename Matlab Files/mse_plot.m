@@ -10,8 +10,8 @@ function error = mse_plot( estimated_st, out)
         centroid(1) = round(stats(1).Centroid(2));
         centroid(2) = round(stats(1).Centroid(1));
     else
-        centroid = estimated_st;
+        centroid = estimated_st';
     end
-    error = norm(centroid-estimated_st);
+    error = norm(centroid'-estimated_st);
     error = error*error;
 end

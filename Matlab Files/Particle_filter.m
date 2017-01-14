@@ -23,6 +23,7 @@ particle_size = 1;
 
 % Particles weightening
 S_bar = weight_Particles(S_bar,out);
+[~,ind] = max(S_bar(3,:));
 
 %Resampling
 RESAMPLE_MODE = 2; 

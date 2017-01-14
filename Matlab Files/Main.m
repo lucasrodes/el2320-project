@@ -4,9 +4,10 @@
 clear all;
 close all;
 
-PARTICLES = 0;
+ENDING = 10;
+PARTICLES = 1;
 KALMAN = 0;
-BOTH = 1;
+BOTH = 0;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -80,8 +81,7 @@ error = [];
 centroid = [1 1];
 
 %Main loop over each video frame
-while (hasFrame(v) && v.currentTime <= 10)
-    v.currentTime
+while (hasFrame(v) && v.currentTime <= ENDING)
     tic
     
     %Read current frame from video input
@@ -98,21 +98,36 @@ while (hasFrame(v) && v.currentTime <= 10)
     %represent the most likely regions of target object's pixels
     [RGB, out] = imageTransformation(vidFrame,colour_thres,[187,187,187],c_thres);
     
+    %Reference image without occlussion use as the real estate of the
+    %system to compute the estimation error
     if verbose == 1
         [~, outOr] = imageTransformation(vidFrameOr,colour_thres,[187,187,187],c_thres, 1);
     end
-
+    
+    %Kalman algorithm
     if KALMAN
+
+            %Convolution kernel used to calculate the measurement used by
+            %Kalman filter during the update step. 
             Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
+            %Image after convolution
             Out = conv2(single(out),Kernel,'same');
+            %Variance of this image,used to detect occlusions. If the
+            %variance is too low, it will mean that the ball is occluded.
             Var_out = var(Out(Out ~= 0))+ 1e-10;
+            %Finds the mode of the Kernel density extraction of the white
+            %pixels. 
             [maxA,ind] = max(Out(:));
             [m,n] = ind2sub(size(Out),ind);
      
-            %Option B
+            %If the ball is fully occluded, we have very poor measurement and the
+            %system should fully trust its predictions, therefore, the
+            %measurement noise has to be considerably big. 
             if Var_out < 40
                 distance = 10;
                 [R,Q,A,C] = kalmanInit(3, mmodel);
+            %If the ball is not occluded, or only partially occluded, the
+            %measurement noise is varies with the variance.
             else
                 [R,Q,A,C] = kalmanInit(1, mmodel);
                 Q = Q/Var_out;
@@ -123,21 +138,31 @@ while (hasFrame(v) && v.currentTime <= 10)
             %Apply the Kalman filter algorithm
             [mu,Sigma] = KalmanAlgorithm(vidFrame,count, mu, Sigma, centroid, ...
                                                        A, R, C, Q, mmodel);
+            %Compute the prediction error, compared to the actual state of
+            %the system.
             if verbose == 1
                 errorKF = [errorKF, mse_plot( mu(1:2), outOr)]; 
             end
     end
+    
+    %We will reuse the particle filter algorithm for both the particle
+    %filter alone and when used along with Kalman filter
     if PARTICLES || BOTH
             %Apply the particle filter algorithm
             [centroidPart, Sp,vidFrame] = Particle_filter(vidFrame, RGB, out, Sp, Rp , verbose);
+            %Coimpute the prediction error compare to the actual state of
+            %the system
             if PARTICLES && verbose == 1
                     errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
             end
+            %Combination of Kalman and Particle filter
             if BOTH
+                    %As in the Kalman filter, this kernel is used to
+                    %calculate the occlusiones.
                     Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
                     Out = conv2(single(out),Kernel,'same');
                     Var_out = var(Out(Out ~= 0)) + 1e-10;
-                    %Option B
+                    %As in the Kalman
                     if Var_out < 40
                         distanceP = 10;
                         [R,QPKF,A,C] = kalmanInit(3, mmodel);
@@ -150,21 +175,26 @@ while (hasFrame(v) && v.currentTime <= 10)
                     %Apply the Kalman filter algorithm
                     [muPKF,SigmaPKF] = KalmanAlgorithm(vidFrame,count, muPKF, SigmaPKF, centroidPart, ...
                                                                    A, R, C, QPKF, mmodel);
+                    %Compute the estimation error compared to the actual
+                    %state of the system.
                     if verbose == 1
                             errorPKF = [errorPKF, mse_plot( muPKF(1:2), outOr)]; 
                     end
             end
     end
-
+        
+    %Out put the real time image
     if verbose == 2
             if KALMAN
-                 %Print the estimated estate
+                 %Print the predicted state in the original frame
                  vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,1) = 255;
                  vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4,abs(round(mu(2))-4 +1):round(mu(2))+4,2:3) = 0;
-
+                 %Compute the maximum sizes of the rectangle that will
+                 %enclose the ball
                  [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,distance);
+                %Output this image
                 image(RGB); axis image;
-            
+                %Output the enclosing square
                 hold on
                 rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','r')
                 hold off
@@ -174,12 +204,13 @@ while (hasFrame(v) && v.currentTime <= 10)
                         %pictures and compute the distances of each particle to the centroid in
                         %ascending order
                         [vidFrame, RGB, distancePart] = particle_distance_and_out( vidFrame ,RGB, Sp,centroidPart,particle_size,c_size );
-
+                        %Print the predicted state
                         vidFrame(abs(round(centroidPart(1))-4 + 1):round(centroidPart(1))+4,abs(round(centroidPart(2))-4 +1):round(centroidPart(2))+4,3) = 255;
                         vidFrame(abs(round(centroidPart(1))-4 + 1):round(centroidPart(1))+4,abs(round(centroidPart(2))-4 +1):round(centroidPart(2))+4,1:2) = 0;
-
+                        %Square's max size
                         [max_distance_x, max_distance_y] = rect_size(xp,yp,centroidPart(1),centroidPart(2),threshold_square,distancePart,Sp);
                     if PARTICLES
+                        %Output the edited frame
                         image(vidFrame); axis image;
                         hold on
                         rectangle('position',[abs(centroidPart(2)-max_distance_y) abs(centroidPart(1)-max_distance_x) abs(2*max_distance_y) abs(2*max_distance_x)], 'EdgeColor','b')
@@ -189,20 +220,24 @@ while (hasFrame(v) && v.currentTime <= 10)
                         %Print the estimated estate
                         vidFrame(abs(round(muPKF(1))-4 + 1):round(muPKF(1))+4,abs(round(muPKF(2))-4 +1):round(muPKF(2))+4,1) = 255;
                         vidFrame(abs(round(muPKF(1))-4 + 1):round(muPKF(1))+4,abs(round(muPKF(2))-4 +1):round(muPKF(2))+4,2:3) = 0;
+                        %Square's max size
                         [max_distance_xK, max_distance_yK] = rect_size(xp,yp,muPKF(1),muPKF(2),threshold_square,10);
-                    image(vidFrame); axis image;
-    
-                    hold on
-                    rectangle('position',[abs(centroidPart(2)-max_distance_y) abs(centroidPart(1)-max_distance_x) abs(2*max_distance_y) abs(2*max_distance_x)], 'EdgeColor','b')
-                    rectangle('position',[abs(muPKF(2)-max_distance_yK) abs(muPKF(1)-max_distance_xK) abs(2*max_distance_yK) abs(2*max_distance_xK)], 'EdgeColor','r')
-                    hold off
+                        %Output the edited frame
+                        image(vidFrame); axis image;
+                        hold on
+                        rectangle('position',[abs(centroidPart(2)-max_distance_y) abs(centroidPart(1)-max_distance_x) abs(2*max_distance_y) abs(2*max_distance_x)], 'EdgeColor','b')
+                        rectangle('position',[abs(muPKF(2)-max_distance_yK) abs(muPKF(1)-max_distance_xK) abs(2*max_distance_yK) abs(2*max_distance_xK)], 'EdgeColor','r')
+                        hold off
                     end
             end
+        %To ensure a correct output Frame rate
         pause(abs((1/v.FrameRate)-toc));
     end
+    %Used in KF to compute the initial variables
     count = count + 1;
 end
 
+%Square error plotting
 if verbose == 1
         figure(1);
         hold on;
@@ -212,15 +247,15 @@ if verbose == 1
         grid on
         if PARTICLES
             plot(errorPF(10:end), 'DisplayName', 'Particle Filter');
-            mean(errorPF)
+            sprintf('MSE PF = %d', mean(errorPF));
         end
         if KALMAN
             plot(errorKF(10:end), 'DisplayName', 'Kalman Filter');
-            mean(errorKF)
+            sprintf('MSE KF = %d', mean(errorKF));
         end
         if BOTH
             plot(errorPKF(10:end),'DisplayName', 'Combined Filter');
-            mean(errorPKF)
+            sprintf('MSE combined = %d', mean(errorPKF));
         end
         legend('show');
 end

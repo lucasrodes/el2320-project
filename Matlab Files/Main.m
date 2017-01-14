@@ -19,9 +19,9 @@ v = VideoReader('Videos/Pinball.mov');
 ENDING = 11; % Run the code until this frame (maximum is ENDING = 600)
 % If set to 1, the MSE curve is obtain for that method. Set all methods to
 % 1 to compare the performance of the three methods.
-PARTICLES = 0;
+PARTICLES = 1;
 KALMAN = 1;
-BOTH = 0;
+BOTH = 1;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -29,7 +29,7 @@ else
     %     verbose = 0 - No output
     %     verbose = 1 - Error plotting
     %     verbose = 2 - Real time video plotting
-    verbose = 2;
+    verbose = 1;
 end
 
 
@@ -169,7 +169,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
             % Compute the prediction error compare to the actual state of
             % the system
             if PARTICLES && verbose == 1
-                errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
+                errorPF = [errorPF, mse_plot(centroidPart', outOr)]; 
             end
             % Combination of Kalman and Particle filter
             if BOTH
@@ -196,7 +196,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                     %Compute the estimation error compared to the actual
                     %state of the system.
                     if verbose == 1
-                            errorPKF = [errorPKF, mse_plot( muPKF(1:2), ...
+                            errorPKF = [errorPKF, mse_plot(muPKF(1:2), ...
                                 outOr)]; 
                     end
             end

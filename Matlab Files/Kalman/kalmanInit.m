@@ -1,4 +1,4 @@
-% function [R,Q,A,C,x,Sigma] = kalmanInit()
+% function [R,Q,A,C] = kalmanInit(param, mmodel)
 % This function initializes the parameters of the Kalman Filter using a
 % constant speed motion model
 %
@@ -15,7 +15,7 @@
 %
 % Where n := length of state vector and m := length of measurement vector
 %
-function [R,Q,A,C] = kalmanInit(param, mmodel)
+function [A, R, C, Q] = kalmanInit(param, mmodel)
 
 dt = 1; % Discrete time
 

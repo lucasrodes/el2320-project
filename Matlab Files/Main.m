@@ -88,6 +88,7 @@ centroid = [1 1];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MAIN LOOP OVER ALL VIDEO FRAMES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Counter 
 count = 0;
@@ -162,19 +163,11 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     % We will reuse the particle filter algorithm for both the particle
     % filter alone and when used along with Kalman filter
     if PARTICLES || BOTH
-<<<<<<< HEAD
             % Apply the particle filter algorithm
             [centroidPart, Sp,vidFrame] = Particle_filter(vidFrame, ...
                 RGB, out, Sp, Rp , verbose);
             % Compute the prediction error compare to the actual state of
             % the system
-=======
-            %Apply the particle filter algorithm
-            [centroidPart, Sp,vidFrame] = Particle_filter(vidFrame, RGB, out, Sp, Rp , verbose);
-
-            %Coimpute the prediction error compare to the actual state of
-            %the system
->>>>>>> 4c681c6eee54d42bfe13d8b5b5ea9bf24935429b
             if PARTICLES && verbose == 1
                 errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
             end

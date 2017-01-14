@@ -19,11 +19,13 @@ particle_size = 1;
 %Particle_filters algorithm to calculate the particles in each time
 %step
 %Prediction
+
 [S_bar] = Predict_rand(Sp,Rp,xp,yp,particle_size);
 
 % Particles weightening
 S_bar = weight_Particles(S_bar,out);
-[~,ind] = max(S_bar(3,:));
+centroid(1) = sum(S_bar(1,:).*S_bar(3,:));
+centroid(2) = sum(S_bar(2,:).*S_bar(3,:));
 
 %Resampling
 RESAMPLE_MODE = 2; 
@@ -38,7 +40,9 @@ switch RESAMPLE_MODE
 end
 
 %Centroid calculation
-centroid = KDE(S,[xp yp]);
+
+%centroid = KDE(S,[xp yp]);
+
     
 end
     

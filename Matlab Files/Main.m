@@ -118,12 +118,20 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     
     %Kalman algorithm
     if KALMAN
+<<<<<<< HEAD
 
             % Convolution kernel used to calculate the measurement used by
             % Kalman filter during the update step. 
             Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 ...
                 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
             % Image after convolution
+=======
+          
+            %Convolution kernel used to calculate the measurement used by
+            %Kalman filter during the update step. 
+            Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
+            %Image after convolution
+>>>>>>> a2f0ab0e7281919a244a688bf95bf1f630d3e2cc
             Out = conv2(single(out),Kernel,'same');
             % Variance of this image,used to detect occlusions. If the
             % variance is too low, it will mean that the ball is occluded.
@@ -167,7 +175,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
             % Compute the prediction error compare to the actual state of
             % the system
             if PARTICLES && verbose == 1
-                    errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
+       errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
             end
             % Combination of Kalman and Particle filter
             if BOTH

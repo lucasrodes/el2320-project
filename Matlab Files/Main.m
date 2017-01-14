@@ -1,7 +1,6 @@
 % Clear everything
 close all;
 
-<<<<<<< HEAD
 % Add path of functions (needed for OS X systems) 
 addpath(genpath('Image_Transformation'));
 addpath(genpath('Kalman'));
@@ -17,18 +16,12 @@ v = VideoReader('Videos/Pinball.mov');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-ENDING = 10; % Run the code until this frame (maximum is ENDING = 600)
+ENDING = 11; % Run the code until this frame (maximum is ENDING = 600)
 % If set to 1, the MSE curve is obtain for that method. Set all methods to
 % 1 to compare the performance of the three methods.
 PARTICLES = 0;
 KALMAN = 1;
 BOTH = 0;
-=======
-ENDING = 11;
-PARTICLES = 0;
-KALMAN = 0;
-BOTH = 1;
->>>>>>> 4c681c6eee54d42bfe13d8b5b5ea9bf24935429b
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -125,20 +118,13 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     
     %Kalman algorithm
     if KALMAN
-<<<<<<< HEAD
 
             % Convolution kernel used to calculate the measurement used by
             % Kalman filter during the update step. 
             Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 ...
                 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
             % Image after convolution
-=======
-          
-            %Convolution kernel used to calculate the measurement used by
-            %Kalman filter during the update step. 
-            Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
-            %Image after convolution
->>>>>>> a2f0ab0e7281919a244a688bf95bf1f630d3e2cc
+
             Out = conv2(single(out),Kernel,'same');
             % Variance of this image,used to detect occlusions. If the
             % variance is too low, it will mean that the ball is occluded.

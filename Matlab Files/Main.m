@@ -106,7 +106,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     
     %Kalman algorithm
     if KALMAN
-
+          
             %Convolution kernel used to calculate the measurement used by
             %Kalman filter during the update step. 
             Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
@@ -153,7 +153,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
             %Coimpute the prediction error compare to the actual state of
             %the system
             if PARTICLES && verbose == 1
-                    errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
+       errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
             end
             %Combination of Kalman and Particle filter
             if BOTH

@@ -14,14 +14,8 @@ M = 750;
 %Random particles generation
 S = [round(rand(1,M)*(x));round(rand(1,M)*(y));(1/M)*ones(1,M)];
 
-% Below here you may want to experiment with the values but these seem to work for most datasets.
-%Variances
-
-%5000 for the other video
-%1000 por pinball
+%Process variance
 R = 890*diag([1e-2 1e-2]); %process noise covariance matrix
 
-%Outlier threshold
-Lambda_psi = 0.0001;
 
 end

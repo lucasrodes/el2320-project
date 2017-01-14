@@ -1,5 +1,6 @@
 function [max_distance_x, max_distance_y] = rect_size(xp,yp,centroidx,centroidy, threshold_square,distance,Sp)
-
+    %Function that computes the maximum possible size of the rectangle that
+    %envolves the estimate with the input conditions given
     if nargin < 7
         max_distance_x = distance;
         max_distance_y = distance;
@@ -26,4 +27,4 @@ function [max_distance_x, max_distance_y] = rect_size(xp,yp,centroidx,centroidy,
             max_distance_y = round(centroidy - 1);
         end
     end
-    
+end

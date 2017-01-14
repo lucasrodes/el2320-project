@@ -18,12 +18,12 @@ v = VideoReader('Videos/Pinball.mov');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-ENDING = 11; % Run the code until this frame (maximum is ENDING = 600)
+ENDING = 1000; % Run the code until this frame (maximum is ENDING = 600)
 % If set to 1, the MSE curve is obtain for that method. Set all methods to
 % 1 to compare the performance of the three methods.
 PARTICLES = 0;
-KALMAN = 1;
-BOTH = 0;
+KALMAN = 0;
+BOTH = 1;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -107,6 +107,12 @@ while (hasFrame(v) && v.currentTime <= ENDING)
         vidFrame = vidFrameOr;
     end
     
+    if count == 0 && verbose == 2
+        figure(1)
+        image(vidFrame);
+        disp('Press a key !')  % Pause before starting plotting
+        pause;
+    end
     %Filters the image and transforms it in a binary image. White will
     %represent the most likely regions of target object's pixels
     [RGB, out] = imageTransformation(vidFrame, colour_thres, ...
@@ -205,6 +211,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
         
     % Output the real time image
     if verbose == 2
+            figure(1);
             if KALMAN
                  % Print the predicted state in the original frame
                  vidFrame(abs(round(mu(1))-4 + 1):round(mu(1))+4, ...
@@ -229,8 +236,8 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                         % binary and original pictures and compute the 
                         % distances of each particle to the centroid in
                         % ascending order
-                        [vidFrame, RGB, distancePart] = ...
-                            particle_distance_and_out(vidFrame, RGB, ...
+                        [vidFrame, distancePart] = ...
+                            particle_distance_and_out(vidFrame, ...
                             Sp,centroidPart,particle_size,c_size );
                         % Print the predicted state
                         vidFrame(abs(round(centroidPart(1))-4 + 1): ...

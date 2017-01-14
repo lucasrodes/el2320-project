@@ -19,8 +19,8 @@ v = VideoReader('Videos/Pinball.mov');
 ENDING = 11; % Run the code until this frame (maximum is ENDING = 600)
 % If set to 1, the MSE curve is obtain for that method. Set all methods to
 % 1 to compare the performance of the three methods.
-PARTICLES = 1;
-KALMAN = 1;
+PARTICLES = 0;
+KALMAN = 0;
 BOTH = 1;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
@@ -29,7 +29,7 @@ else
     %     verbose = 0 - No output
     %     verbose = 1 - Error plotting
     %     verbose = 2 - Real time video plotting
-    verbose = 1;
+    verbose = 2;
 end
 
 

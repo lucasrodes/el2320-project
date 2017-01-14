@@ -23,8 +23,9 @@ particle_size = 1;
 [S_bar] = Predict_rand(Sp,Rp,xp,yp,particle_size);
 
 % Particles weightening
-
 S_bar = weight_Particles(S_bar,out);
+
+%Density extraction
 predicted(1) = sum(S_bar(1,:).*S_bar(3,:));
 predicted(2) = sum(S_bar(2,:).*S_bar(3,:));
 

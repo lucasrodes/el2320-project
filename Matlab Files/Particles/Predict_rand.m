@@ -21,9 +21,6 @@ dimensions(1,1:N) = x;
 dimensions(2,1:N) = y;
 S(1:2,:) = abs(S(1:2,:) + Mult_factor*dimensions.*randn(2,N));
 
-% %We have to compute N(0,r). Is easy, is just a rand value multiply by the R covariance
-% %It has to be a 4xM matrix. With the last row being zeros. First, a Mx3
-% %random numbers matrix
 Random_mat = randn(N,2)*R;
 
 %We add a rows of zeros so the weight is not chenged, as we did for the
@@ -33,7 +30,8 @@ Normal_R = [Random_mat zeros(N,1)]';
 %Diffusion
 S = (round(S + Normal_R));
 
-%Check dimension boundaries
+%Check dimension boundaries to make sure that all of the particles follow
+%inside the image boundaries
 for i = 1:size(S,2)
     if S(1,i) > (x - particle_size/2)
         S(1,i) = x - round(particle_size/2) - 1;

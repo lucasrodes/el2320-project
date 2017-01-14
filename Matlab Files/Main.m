@@ -21,9 +21,9 @@ v = VideoReader('Videos/Pinball.mov');
 ENDING = 11; % Run the code until this frame (maximum is ENDING = 600)
 % If set to 1, the MSE curve is obtain for that method. Set all methods to
 % 1 to compare the performance of the three methods.
-PARTICLES = 0;
+PARTICLES = 1;
 KALMAN = 0;
-BOTH = 1;
+BOTH = 0;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -229,8 +229,8 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                         % binary and original pictures and compute the 
                         % distances of each particle to the centroid in
                         % ascending order
-                        [vidFrame, RGB, distancePart] = ...
-                            particle_distance_and_out(vidFrame, RGB, ...
+                        [vidFrame, distancePart] = ...
+                            particle_distance_and_out(vidFrame, ...
                             Sp,centroidPart,particle_size,c_size );
                         % Print the predicted state
                         vidFrame(abs(round(centroidPart(1))-4 + 1): ...

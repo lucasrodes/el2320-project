@@ -18,12 +18,12 @@ v = VideoReader('Videos/Pinball.mov');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-ENDING = 1000; % Run the code until this frame (maximum is ENDING = 600)
+ENDING = 11; % Run the code until this frame (maximum is ENDING = 600)
 % If set to 1, the MSE curve is obtain for that method. Set all methods to
 % 1 to compare the performance of the three methods.
 PARTICLES = 0;
-KALMAN = 0;
-BOTH = 1;
+KALMAN = 1;
+BOTH = 0;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -77,7 +77,7 @@ errorPKF = [];
 [Sp,Rp] = init_Particles(xp,yp);
 
 % KALMAN FILTER
-mmodel = 0; % motion model: 0 (constant speed) or 1 (constant acceleration)
+mmodel = 1; % motion model: 0 (constant speed) or 1 (constant acceleration)
 [A, R, C, Q] = kalmanInit(1, mmodel);
 
 mu = 0;
@@ -107,17 +107,19 @@ while (hasFrame(v) && v.currentTime <= ENDING)
         vidFrame = vidFrameOr;
     end
     
-    if count == 0 && verbose == 2
-        figure(1)
-        image(vidFrame);
-        disp('Press a key !')  % Pause before starting plotting
-        pause;
-    end
+    % For recording purposes
+    %if count == 0 && verbose == 2
+    %    figure(1)
+    %    image(vidFrame);
+    %    disp('Press a key !')  % Pause before starting plotting
+    %    pause;
+    %end
+    
     %Filters the image and transforms it in a binary image. White will
     %represent the most likely regions of target object's pixels
     [RGB, out] = imageTransformation(vidFrame, colour_thres, ...
         [187,187,187],c_thres);
-    
+
     %Reference image without occlussion use as the real estate of the
     %system to compute the estimation error
     if verbose == 1
@@ -133,8 +135,14 @@ while (hasFrame(v) && v.currentTime <= ENDING)
             Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 ...
                 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
             % Image after convolution
-
             Out = conv2(single(out),Kernel,'same');
+            
+            % For analysis purposes
+            if v.currentTime == 10.5
+                save out.mat Out;
+                disp('press any key')
+                pause;
+            end
             % Variance of this image,used to detect occlusions. If the
             % variance is too low, it will mean that the ball is occluded.
             Var_out = var(Out(Out ~= 0))+ 1e-10;
@@ -171,7 +179,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     % filter alone and when used along with Kalman filter
     if PARTICLES || BOTH
             % Apply the particle filter algorithm
-            [centroidPart, Sp,vidFrame] = Particle_filter(vidFrame, ...
+            [centroidPart, Sp, vidFrame] = Particle_filter(vidFrame, ...
                 RGB, out, Sp, Rp , verbose);
             % Compute the prediction error compare to the actual state of
             % the system
@@ -209,7 +217,9 @@ while (hasFrame(v) && v.currentTime <= ENDING)
             end
     end
         
-    % Output the real time image
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % PLOT OF THE OBJECT TRACKING RESULTS
+
     if verbose == 2
             figure(1);
             if KALMAN
@@ -222,9 +232,12 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                  % enclose the ball
                  [max_distance_x_K, max_distance_y_K] = rect_size(xp, ...
                      yp,mu(1),mu(2),threshold_square,distance);
-                %Output this image
+                % Output this image
+                %subplot(1,2,1);
                 image(vidFrame); axis image;
-                %Output the enclosing square
+                %subplot(1,2,2);
+                %image(double(RGB)); axis image;
+                % Output the enclosing square
                 hold on
                 rectangle('position',[abs(mu(2)-max_distance_y_K) ...
                     abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) ...
@@ -256,7 +269,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                         % Output the edited frame
                         image(vidFrame); axis image;
                         hold on
-             rectangle('position', [abs(centroidPart(2)-...
+                        rectangle('position', [abs(centroidPart(2)-...
                             max_distance_y) abs(centroidPart(1)-...
                             max_distance_x) abs(2*max_distance_y) ...
                             abs(2*max_distance_x)], 'EdgeColor','b')

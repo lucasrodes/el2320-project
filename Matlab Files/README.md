@@ -1,1 +1,1 @@
-Briefly explain how to
+Open the Main file and choose your parameters. This includes: (i) algorithm to execute (KF, PF or combination), (ii) mode of execution (plot object tracking live, plot MSE results).

@@ -4,7 +4,7 @@
 %           S_bar(t)            3XM
 function S_bar = weight_Particles(S_bar, Im_in)
     %Variable to ensure that any particle have a 0 probability
-    underflow = 1e-10;
+    underflow = 1e-3;
     
     %We need to compute a Kernel around the binary image sin order to give
     %the importance weights to the particles. This kernel is circular as

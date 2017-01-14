@@ -18,13 +18,9 @@ for m = 1: M
     %We finde the frist value that is bigger than the random number
     i = find( CDF >= rm , 1);
     [~,s] = size(i);
-    while s <= 0
-        rm = rand(); % random number in the interval 0,1
-        %We finde the frist value that is bigger than the random number
-        i = find( CDF >= rm , 1);
-        [~,s] = size(i);
+    if s > 0
+        S(:,m) = S_bar(:,i);
     end
-    S(:,m) = S_bar(:,i);
     %We have to reinitialize the values of the weights for the next step
     S(3,:) = 1/M;
 end

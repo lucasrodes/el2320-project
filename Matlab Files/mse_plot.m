@@ -9,6 +9,8 @@ function error = mse_plot( estimated_st, out)
     if w_pix >= 10
         centroid(1) = round(stats(1).Centroid(2));
         centroid(2) = round(stats(1).Centroid(1));
+    else
+        centroid = estimated_st;
     end
     error = norm(centroid-estimated_st);
     error = error*error;

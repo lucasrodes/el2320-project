@@ -1,4 +1,4 @@
-function [RGB ,out_bin] = imageTransformation( original_im, colour_thres,color, c_thres)
+function [RGB ,out_bin] = imageTransformation( original_im, colour_thres,color, c_thres, perf)
 
 if nargin < 3
     %Get rgb values
@@ -23,7 +23,9 @@ else
     if nargin < 4
         c_thres = 50;
     end
-    
+    if nargin < 5
+        perf = 0;
+    end
     %Get rgb values
     r = original_im(:, :, 1);
     g = original_im(:, :, 2);
@@ -37,7 +39,11 @@ else
     out_bin = green.*red.*blue;
 
     %We smooth the edges and fill the gaps
-    out_bin = bwareaopen(out_bin,10);
+    if perf == 0
+        out_bin = bwareaopen(out_bin,10);
+    else
+        out_bin = bwareaopen(out_bin,50);
+    end
      
     %Conver to RGB
     grayImage = 255 * uint8(out_bin);

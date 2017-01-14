@@ -14,7 +14,7 @@ else
     %Set: verbose = 0 - No output
     %     verbose = 1 - Error plotting
     %     verbose = 2 - Real time video plotting
-    verbose = 2;
+    verbose = 1;
 end
 
 %Path 
@@ -27,13 +27,7 @@ addpath(genpath('Particles'));
 OBSTACLES = 1;
 
 %Video input file
-v = VideoReader('Videos/NES_Longplay_[456_Pinball.mov');
-
-%Specify when in the video (in s) should the program start reading
-v.CurrentTime = 255;
-
-%Set the finishing time. Length then will be ENDING - v.CurrentTime
-ENDING = 270;
+v = VideoReader('Videos/Pinball.mov');
 
 %Variable to ensure correct representation of particles and estimated
 %estates
@@ -86,7 +80,7 @@ error = [];
 centroid = [1 1];
 
 %Main loop over each video frame
-while (hasFrame(v) && v.currentTime <= ENDING)
+while (hasFrame(v) && v.currentTime <= 10)
     
     tic
     
@@ -102,43 +96,30 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     
     %Filters the image and transforms it in a binary image. White will
     %represent the most likely regions of target object's pixels
-    [RGB, out] = imageTransformation(vidFrame,colour_thres,[187,187,187],c_thres);
+    [RGB, out] = imageTransformation(vidFrameOr,colour_thres,[187,187,187],c_thres);
     
     if verbose == 1
-        [~, outOr] = imageTransformation(vidFrameOr,colour_thres,[187,187,187],c_thres);
+        [~, outOr] = imageTransformation(vidFrameOr,colour_thres,[187,187,187],c_thres, 1);
     end
 
     if KALMAN
-
-            [B,L] = bwboundaries(out,'noholes');
-            %Check roundness
-            stats = regionprops(L,'Area','Centroid');
-            %Compute the number of white pixels in the image to calculate the
-            %oclusion
-            w_pix = sum(sum(out));
+            Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
+            Out = conv2(single(out),Kernel,'same');
+            Var_out = var(Out(Out ~= 0))+ 1e-10;
+            [maxA,ind] = max(Out(:));
+            [m,n] = ind2sub(size(Out),ind);
+     
             %Option B
-            if w_pix < 10
-                centroid = centroid;
-                distance = 0;
-                param = 3;
-            elseif w_pix < 70
-                param = 3;
-                centroid(1) = round(stats(1).Centroid(2));
-                centroid(2) = round(stats(1).Centroid(1));
-                distance = sqrt(round(stats(1).Area)/pi);
-            elseif w_pix < 100
-                param = 2;
-                centroid(1) = round(stats(1).Centroid(2));
-                centroid(2) = round(stats(1).Centroid(1));
-                distance = sqrt(round(stats(1).Area)/pi);
+            if Var_out < 40
+                distance = 10;
+                [R,Q,A,C] = kalmanInit(3, mmodel);
             else
-                param = 1;
-                centroid(1) = round(stats(1).Centroid(2));
-                centroid(2) = round(stats(1).Centroid(1));
-                distance = sqrt(round(stats(1).Area)/pi);
+                [R,Q,A,C] = kalmanInit(1, mmodel);
+                Q = Q/Var_out;
+                centroid = [m,n];
+                distance = 10;
             end
-            %Parameters initialization
-            [R,Q,A,C] = kalmanInit(param, mmodel);
+             
             %Apply the Kalman filter algorithm
             [mu,Sigma] = KalmanAlgorithm(vidFrame,count, mu, Sigma, centroid, ...
                                                        A, R, C, Q, mmodel);
@@ -153,27 +134,27 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                     errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
             end
             if BOTH
-                    %Compute the number of white pixels in the image to calculate the
-                    %oclusion
-                    w_pix = sum(sum(out));
+                    Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
+                    Out = conv2(single(out),Kernel,'same');
+                    Var_out = var(Out(Out ~= 0)) + 1e-10;
                     %Option B
-                    if w_pix < 70
-                        param = 3;
-                    elseif w_pix < 100
-                        param = 2;
+                    if Var_out < 40
+                        distanceP = 10;
+                        [R,QPKF,A,C] = kalmanInit(3, mmodel);
                     else
-                        param = 1;
+                        [R,QPKF,A,C] = kalmanInit(1, mmodel);
+                        QPKF = QPKF/Var_out;
+                        distanceP = 10;
                     end
-                    %Parameters initialization
-                    [R,QPKF,A,C] = kalmanInit(param, mmodel);
+
                     %Apply the Kalman filter algorithm
-                    [muPKF,SigmaPKF] = KalmanAlgorithm(vidFrame,count, muPKF, SigmaPKF, centroidPart', ...
+                    [muPKF,SigmaPKF] = KalmanAlgorithm(vidFrame,count, muPKF, SigmaPKF, centroidPart, ...
                                                                    A, R, C, QPKF, mmodel);
                     if verbose == 1
                             errorPKF = [errorPKF, mse_plot( muPKF(1:2), outOr)]; 
                     end
-                end
-        end
+            end
+    end
 
     if verbose == 2
             if KALMAN
@@ -192,14 +173,14 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                         %This function represents the particles in the binary and original
                         %pictures and compute the distances of each particle to the centroid in
                         %ascending order
-                        [vidFrame, RGB, distanceP] = particle_distance_and_out( vidFrame ,RGB, Sp,centroidPart,particle_size,c_size );
+                        [vidFrame, RGB, distancePart] = particle_distance_and_out( vidFrame ,RGB, Sp,centroidPart,particle_size,c_size );
 
                         vidFrame(abs(round(centroidPart(1))-4 + 1):round(centroidPart(1))+4,abs(round(centroidPart(2))-4 +1):round(centroidPart(2))+4,3) = 255;
                         vidFrame(abs(round(centroidPart(1))-4 + 1):round(centroidPart(1))+4,abs(round(centroidPart(2))-4 +1):round(centroidPart(2))+4,1:2) = 0;
 
-                        [max_distance_x, max_distance_y] = rect_size(xp,yp,centroidPart(1),centroidPart(2),threshold_square,distanceP,Sp);
+                        [max_distance_x, max_distance_y] = rect_size(xp,yp,centroidPart(1),centroidPart(2),threshold_square,distancePart,Sp);
                     if PARTICLES
-                        image(RGB); axis image;
+                        image(vidFrame); axis image;
                         hold on
                         rectangle('position',[abs(centroidPart(2)-max_distance_y) abs(centroidPart(1)-max_distance_x) abs(2*max_distance_y) abs(2*max_distance_x)], 'EdgeColor','b')
                         hold off
@@ -208,8 +189,8 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                         %Print the estimated estate
                         vidFrame(abs(round(muPKF(1))-4 + 1):round(muPKF(1))+4,abs(round(muPKF(2))-4 +1):round(muPKF(2))+4,1) = 255;
                         vidFrame(abs(round(muPKF(1))-4 + 1):round(muPKF(1))+4,abs(round(muPKF(2))-4 +1):round(muPKF(2))+4,2:3) = 0;
-                        [max_distance_xK, max_distance_yK] = rect_size(xp,yp,muPKF(1),muPKF(2),threshold_square,distanceP,Sp);
-                    %image(vidFrame); axis image;
+                        [max_distance_xK, max_distance_yK] = rect_size(xp,yp,muPKF(1),muPKF(2),threshold_square,10);
+                    image(vidFrame); axis image;
     
                     hold on
                     rectangle('position',[abs(centroidPart(2)-max_distance_y) abs(centroidPart(1)-max_distance_x) abs(2*max_distance_y) abs(2*max_distance_x)], 'EdgeColor','b')

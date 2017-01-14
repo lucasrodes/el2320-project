@@ -22,8 +22,8 @@ ENDING = 11; % Run the code until this frame (maximum is ENDING = 600)
 % If set to 1, the MSE curve is obtain for that method. Set all methods to
 % 1 to compare the performance of the three methods.
 PARTICLES = 0;
-KALMAN = 0;
-BOTH = 1;
+KALMAN = 1;
+BOTH = 0;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -56,7 +56,7 @@ threshold_square = 30;
 colour_thres = 1.55;
 
 % We need this to identify a certain color
-c_thres = 10;
+c_thres = 12;
 
 % Pixel's size of particles
 particle_size = 1;
@@ -300,15 +300,15 @@ if verbose == 1
         grid on
         if PARTICLES
             plot(errorPF(10:end), 'DisplayName', 'Particle Filter');
-            sprintf('MSE PF = %d', mean(errorPF));
+            sprintf('MSE PF = %d', mean(errorPF))
         end
         if KALMAN
             plot(errorKF(10:end), 'DisplayName', 'Kalman Filter');
-            sprintf('MSE KF = %d', mean(errorKF));
+            sprintf('MSE KF = %d', mean(errorKF))
         end
         if BOTH
             plot(errorPKF(10:end),'DisplayName', 'Combined Filter');
-            sprintf('MSE combined = %d', mean(errorPKF));
+            sprintf('MSE combined = %d', mean(errorPKF))
         end
         legend('show');
 end

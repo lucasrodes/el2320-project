@@ -4,10 +4,10 @@
 clear all;
 close all;
 
-ENDING = 10;
-PARTICLES = 1;
+ENDING = 11;
+PARTICLES = 0;
 KALMAN = 0;
-BOTH = 0;
+BOTH = 1;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -150,10 +150,11 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     if PARTICLES || BOTH
             %Apply the particle filter algorithm
             [centroidPart, Sp,vidFrame] = Particle_filter(vidFrame, RGB, out, Sp, Rp , verbose);
+
             %Coimpute the prediction error compare to the actual state of
             %the system
             if PARTICLES && verbose == 1
-       errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
+                errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
             end
             %Combination of Kalman and Particle filter
             if BOTH
@@ -193,7 +194,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                  %enclose the ball
                  [max_distance_x_K, max_distance_y_K] = rect_size(xp,yp,mu(1),mu(2),threshold_square,distance);
                 %Output this image
-                image(RGB); axis image;
+                image(vidFrame); axis image;
                 %Output the enclosing square
                 hold on
                 rectangle('position',[abs(mu(2)-max_distance_y_K) abs(mu(1)-max_distance_x_K) abs(2*max_distance_y_K) abs(2*max_distance_x_K)], 'EdgeColor','r')

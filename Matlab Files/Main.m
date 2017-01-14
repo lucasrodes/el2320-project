@@ -21,8 +21,8 @@ v = VideoReader('Videos/Pinball.mov');
 ENDING = 11; % Run the code until this frame (maximum is ENDING = 600)
 % If set to 1, the MSE curve is obtain for that method. Set all methods to
 % 1 to compare the performance of the three methods.
-PARTICLES = 0;
-KALMAN = 1;
+PARTICLES = 1;
+KALMAN = 0;
 BOTH = 0;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
@@ -132,8 +132,8 @@ while (hasFrame(v) && v.currentTime <= ENDING)
 
             % Convolution kernel used to calculate the measurement used by
             % Kalman filter during the update step. 
-            Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 ...
-                3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
+            Kernel = KernelFunction(0); %[ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 ...
+                %3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
             % Image after convolution
             Out = conv2(single(out),Kernel,'same');
             
@@ -180,7 +180,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     if PARTICLES || BOTH
             % Apply the particle filter algorithm
             [centroidPart, Sp, vidFrame] = Particle_filter(vidFrame, ...
-                RGB, out, Sp, Rp , verbose);
+                out, Sp, Rp);
             % Compute the prediction error compare to the actual state of
             % the system
             if PARTICLES && verbose == 1
@@ -190,8 +190,8 @@ while (hasFrame(v) && v.currentTime <= ENDING)
             if BOTH
                     %As in the Kalman filter, this kernel is used to
                     %calculate the occlusiones.
-                    Kernel = [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; ...
-                        1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
+                    Kernel = KernelFunction(0);% [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; ...
+                        %1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
                     Out = conv2(single(out),Kernel,'same');
                     Var_out = var(Out(Out ~= 0)) + 1e-10;
                     %As in the Kalman

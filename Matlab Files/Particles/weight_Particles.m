@@ -9,18 +9,8 @@ function S_bar = weight_Particles(S_bar, Im_in)
     %We need to compute a Kernel around the binary image sin order to give
     %the importance weights to the particles. This kernel is circular as
     %the target objective is circular too
-    Kernel =(1/253)*[ 0 0 0 0 1 1 0 0 0 0; 0 0 0 1 8 8 1 0 0 0;0 0 1 8 27 27 8 1 0 0;0 1 8 27 81 81 27 8 1 0; 1 8 27 81 253 253 81 27 8 1 ;
-               1 8 27 81 253 253 81 27 8 1 ; 0 1 8 27 81 81 27 8 1 0 ;0 0 1 8 27 27 8 1 0 0 ; 0 0 0 1 8 8 1 0 0 0;0 0 0 0 1 1 0 0 0 0];
-     Out = conv2(single(Im_in),Kernel,'same');
-     
-    %Some other proposed Kernels
-    %1-Flat circular Kernel
-%     Kernel = [ 0 0 0 0 1 1 0 0 0 0; 0 0 0 1 1 1 1 0 0 0;0 0 1 1 1 1 1 1 0 0;0 1 1 1 1 1 1 1 1 0; 1 1 1 1 1 1 1 1 1 1 ;
-%                1 1 1 1 1 1 1 1 1 1 ; 0 1 1 1 1 1 1 1 1 0 ;0 0 1 1 1 1 1 1 0 0 ; 0 0 0 1 1 1 1 0 0 0;0 0 0 0 1 1 0 0 0 0];
-%      Out = conv2(single(Im_in),Kernel,'same');
-%     %2- Gaussian Kernel
-%     H = fspecial('Gaussian',[3 3],5);
-%     Out = conv2(single(Im_in),H,'same');
+    Kernel = KernelFunction(1);
+    Out = conv2(single(Im_in),Kernel,'same');
 
     %The weight will be the value of the convolved image in the position of
     %each particle plus a small underflow to make sure that any particle

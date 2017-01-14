@@ -1,4 +1,5 @@
-function [predicted,S, vidFrame] = Particle_filter( vidFrame, RGB,out, Sp, Rp ,verbose)
+function [predicted,S, vidFrame] = Particle_filter( vidFrame,out, ...
+    Sp, Rp)
   
 %%%%%%%%%%%%%%%%%%%
 %%Particle filter%%

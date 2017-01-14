@@ -1,4 +1,5 @@
-function [RGB ,out_bin] = imageTransformation( original_im, colour_thres,color, c_thres, perf)
+function [RGB ,out_bin] = imageTransformation( original_im, ...
+    colour_thres,color, c_thres, perf)
 
 %Two options of thresholding
 %This first one is used when the target color is not well defined or unique
@@ -57,6 +58,6 @@ else
     %Conver to RGB
     grayImage = 255 * uint8(out_bin);
     RGB = cat(3, grayImage, grayImage, grayImage);
-    
+
     
 end

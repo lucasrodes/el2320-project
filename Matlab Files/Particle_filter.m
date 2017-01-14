@@ -1,4 +1,4 @@
-function [centroid,S, vidFrame, distance] = Particle_filter( vidFrame, RGB,out, Sp, Rp ,verbose)
+function [predicted,S, vidFrame] = Particle_filter( vidFrame, RGB,out, Sp, Rp ,verbose)
   
 %%%%%%%%%%%%%%%%%%%
 %%Particle filter%%
@@ -23,12 +23,13 @@ particle_size = 1;
 [S_bar] = Predict_rand(Sp,Rp,xp,yp,particle_size);
 
 % Particles weightening
+
 S_bar = weight_Particles(S_bar,out);
-centroid(1) = sum(S_bar(1,:).*S_bar(3,:));
-centroid(2) = sum(S_bar(2,:).*S_bar(3,:));
+predicted(1) = sum(S_bar(1,:).*S_bar(3,:));
+predicted(2) = sum(S_bar(2,:).*S_bar(3,:));
 
 %Resampling
-RESAMPLE_MODE = 2; 
+RESAMPLE_MODE = 1;
 %0=no resampling, 1=Multinomial resampling, 2=Systematic Resampling
 switch RESAMPLE_MODE
     case 0
@@ -38,11 +39,6 @@ switch RESAMPLE_MODE
     case 2
         S = systematic_resample_particles(S_bar);
 end
-
-%Centroid calculation
-
-%centroid = KDE(S,[xp yp]);
-
-    
+  
 end
     

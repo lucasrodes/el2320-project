@@ -8,9 +8,15 @@ function S_bar = weight_Particles(S_bar, Im_in)
     beta = 0.5;
     underflow = 1e-10;
     %M aybe roundess parameter should be added to the weight
-    Kernel = [ 0 0 0 0 1 1 0 0 0 0; 0 0 0 1 8 8 1 0 0 0;0 0 1 8 27 27 8 1 0 0;0 1 8 27 81 81 27 8 1 0; 1 8 27 81 253 253 81 27 8 1 ;
-              1 8 27 81 253 253 81 27 8 1 ; 0 1 8 27 81 81 27 8 1 0 ;0 0 1 8 27 27 8 1 0 0 ; 0 0 0 1 8 8 1 0 0 0;0 0 0 0 1 1 0 0 0 0];
-    Out = conv2(single(Im_in),Kernel,'same');    
+    Kernel =(1/253)*[ 0 0 0 0 1 1 0 0 0 0; 0 0 0 1 8 8 1 0 0 0;0 0 1 8 27 27 8 1 0 0;0 1 8 27 81 81 27 8 1 0; 1 8 27 81 253 253 81 27 8 1 ;
+               1 8 27 81 253 253 81 27 8 1 ; 0 1 8 27 81 81 27 8 1 0 ;0 0 1 8 27 27 8 1 0 0 ; 0 0 0 1 8 8 1 0 0 0;0 0 0 0 1 1 0 0 0 0];
+     Out = conv2(single(Im_in),Kernel,'same');
+%     Kernel = [ 0 0 0 0 1 1 0 0 0 0; 0 0 0 1 1 1 1 0 0 0;0 0 1 1 1 1 1 1 0 0;0 1 1 1 1 1 1 1 1 0; 1 1 1 1 1 1 1 1 1 1 ;
+%                1 1 1 1 1 1 1 1 1 1 ; 0 1 1 1 1 1 1 1 1 0 ;0 0 1 1 1 1 1 1 0 0 ; 0 0 0 1 1 1 1 0 0 0;0 0 0 0 1 1 0 0 0 0];
+%      Out = conv2(single(Im_in),Kernel,'same');
+%     H = fspecial('Gaussian',[3 3],5);
+%     Out = conv2(single(Im_in),H,'same');
+
     %Now we only take into account if it is white or black. White is a
     %possible good object so high weight
     for i = 1:size(S_bar,2)

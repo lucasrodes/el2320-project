@@ -49,4 +49,5 @@ else
     grayImage = 255 * uint8(out_bin);
     RGB = cat(3, grayImage, grayImage, grayImage);
     
+    
 end

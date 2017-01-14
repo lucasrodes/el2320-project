@@ -9,7 +9,7 @@
 function [S,R,Lambda_psi] = init_Particles(x,y)
 
 %Particles number
-M = 1000;
+M = 750;
 
 %Random particles generation
 S = [round(rand(1,M)*(x));round(rand(1,M)*(y));(1/M)*ones(1,M)];
@@ -19,7 +19,7 @@ S = [round(rand(1,M)*(x));round(rand(1,M)*(y));(1/M)*ones(1,M)];
 
 %5000 for the other video
 %1000 por pinball
-R = 800*diag([1e-2 1e-2]); %process noise covariance matrix
+R = 890*diag([1e-2 1e-2]); %process noise covariance matrix
 
 %Outlier threshold
 Lambda_psi = 0.0001;

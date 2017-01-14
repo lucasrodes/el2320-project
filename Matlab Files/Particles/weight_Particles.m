@@ -4,9 +4,12 @@
 %           S_bar(t)            3XM
 function S_bar = weight_Particles(S_bar, Im_in)
 
+    alpha = 8;
+    beta = 0.5;
     underflow = 1e-10;
-    %Maybe roundess parameter should be added to the weight
-    Kernel = [ 0 0 1 1 0 0; 0 1 8 8 1 0; 1 8 27 27 8 1; 1 8 27 27 8 1; 0 1 8 8 1 0 ; 0 0 1 1 0 0];
+    %M aybe roundess parameter should be added to the weight
+    Kernel = [ 0 0 0 0 1 1 0 0 0 0; 0 0 0 1 8 8 1 0 0 0;0 0 1 8 27 27 8 1 0 0;0 1 8 27 81 81 27 8 1 0; 1 8 27 81 253 253 81 27 8 1 ;
+              1 8 27 81 253 253 81 27 8 1 ; 0 1 8 27 81 81 27 8 1 0 ;0 0 1 8 27 27 8 1 0 0 ; 0 0 0 1 8 8 1 0 0 0;0 0 0 0 1 1 0 0 0 0];
     Out = conv2(single(Im_in),Kernel,'same');    
     %Now we only take into account if it is white or black. White is a
     %possible good object so high weight

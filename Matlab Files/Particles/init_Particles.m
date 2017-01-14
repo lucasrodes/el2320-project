@@ -19,7 +19,7 @@ S = [round(rand(1,M)*(x));round(rand(1,M)*(y));(1/M)*ones(1,M)];
 
 %5000 for the other video
 %1000 por pinball
-R = 3000*diag([1e-2 1e-2]); %process noise covariance matrix
+R = 800*diag([1e-2 1e-2]); %process noise covariance matrix
 
 %Outlier threshold
 Lambda_psi = 0.0001;

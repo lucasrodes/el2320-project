@@ -1,6 +1,7 @@
 % Clear everything
 close all;
 
+<<<<<<< HEAD
 % Add path of functions (needed for OS X systems) 
 addpath(genpath('Image_Transformation'));
 addpath(genpath('Kalman'));
@@ -22,6 +23,12 @@ ENDING = 10; % Run the code until this frame (maximum is ENDING = 600)
 PARTICLES = 0;
 KALMAN = 1;
 BOTH = 0;
+=======
+ENDING = 11;
+PARTICLES = 0;
+KALMAN = 0;
+BOTH = 1;
+>>>>>>> 4c681c6eee54d42bfe13d8b5b5ea9bf24935429b
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
     verbose = 1;
@@ -169,13 +176,21 @@ while (hasFrame(v) && v.currentTime <= ENDING)
     % We will reuse the particle filter algorithm for both the particle
     % filter alone and when used along with Kalman filter
     if PARTICLES || BOTH
+<<<<<<< HEAD
             % Apply the particle filter algorithm
             [centroidPart, Sp,vidFrame] = Particle_filter(vidFrame, ...
                 RGB, out, Sp, Rp , verbose);
             % Compute the prediction error compare to the actual state of
             % the system
+=======
+            %Apply the particle filter algorithm
+            [centroidPart, Sp,vidFrame] = Particle_filter(vidFrame, RGB, out, Sp, Rp , verbose);
+
+            %Coimpute the prediction error compare to the actual state of
+            %the system
+>>>>>>> 4c681c6eee54d42bfe13d8b5b5ea9bf24935429b
             if PARTICLES && verbose == 1
-       errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
+                errorPF = [errorPF, mse_plot( centroidPart, outOr)]; 
             end
             % Combination of Kalman and Particle filter
             if BOTH

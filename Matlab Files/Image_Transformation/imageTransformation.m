@@ -53,6 +53,10 @@ else
     %isolates the target ball, so all of the filters work idoneally
     else
         out_bin = bwareaopen(out_bin,50);
+        se = strel('disk',2);
+        out_bin = imclose(out_bin,se);
+        out_bin = imfill(out_bin,'holes');
+        out_bin = imclearborder(out_bin);
     end
      
     %Conver to RGB

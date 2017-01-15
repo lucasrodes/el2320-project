@@ -1,5 +1,4 @@
 function error = mse_plot(estimated_st, out)
-   
     [~,L] = bwboundaries(out,'noholes');
     %Check roundness
     stats = regionprops(L,'Area','Centroid');

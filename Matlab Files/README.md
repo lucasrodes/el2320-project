@@ -1,1 +1,1 @@
-Open the Main file and choose your parameters. This includes: (i) algorithm to execute (KF, PF or combination), (ii) mode of execution (plot object tracking live, plot MSE results).
+Open the `Main.m` file and choose your parameters. This includes: (i) algorithm to execute (KF, PF or combination), (ii) mode of execution (plot object tracking live, plot MSE results). Once this is done, run `Main` in MATLAB.

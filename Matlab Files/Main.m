@@ -18,11 +18,11 @@ v = VideoReader('Videos/Pinball.mov');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-ENDING = 11; % Run the code until this frame (maximum is ENDING = 600)
+ENDING = 15; % Run the code until this frame (maximum is ENDING = 600)
 % If set to 1, the MSE curve is obtain for that method. Set all methods to
 % 1 to compare the performance of the three methods.
-PARTICLES = 1;
-KALMAN = 0;
+KALMAN = 1;
+PARTICLES = 0;
 BOTH = 0;
 
 if ( PARTICLES + KALMAN + BOTH ) > 1
@@ -77,7 +77,7 @@ errorPKF = [];
 [Sp,Rp] = init_Particles(xp,yp);
 
 % KALMAN FILTER
-mmodel = 1; % motion model: 0 (constant speed) or 1 (constant acceleration)
+mmodel = 0; % motion model: 0 (constant speed) or 1 (constant acceleration)
 [A, R, C, Q] = kalmanInit(1, mmodel);
 
 mu = 0;
@@ -132,17 +132,17 @@ while (hasFrame(v) && v.currentTime <= ENDING)
 
             % Convolution kernel used to calculate the measurement used by
             % Kalman filter during the update step. 
-            Kernel = KernelFunction(0); %[ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; 1 2 3 ...
-                %3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
+            Kernel = KernelFunction(0); 
             % Image after convolution
             Out = conv2(single(out),Kernel,'same');
             
             % For analysis purposes
-            if v.currentTime == 10.5
-                save out.mat Out;
-                disp('press any key')
-                pause;
-            end
+            %if v.currentTime == 10.5
+            %    save out.mat Out;
+            %    disp('press any key')
+            %    pause;
+            %end
+            
             % Variance of this image,used to detect occlusions. If the
             % variance is too low, it will mean that the ball is occluded.
             Var_out = var(Out(Out ~= 0))+ 1e-10;
@@ -190,8 +190,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
             if BOTH
                     %As in the Kalman filter, this kernel is used to
                     %calculate the occlusiones.
-                    Kernel = KernelFunction(0);% [ 0 0 1 1 0 0; 0 1 2 2 1 0; 1 2 3 3 2 1; ...
-                        %1 2 3 3 2 1; 0 1 2 2 1 0 ; 0 0 1 1 0 0];
+                    Kernel = KernelFunction(0);
                     Out = conv2(single(out),Kernel,'same');
                     Var_out = var(Out(Out ~= 0)) + 1e-10;
                     %As in the Kalman
@@ -237,6 +236,7 @@ while (hasFrame(v) && v.currentTime <= ENDING)
                 image(vidFrame); axis image;
                 %subplot(1,2,2);
                 %image(double(RGB)); axis image;
+                
                 % Output the enclosing square
                 hold on
                 rectangle('position',[abs(mu(2)-max_distance_y_K) ...
@@ -314,22 +314,23 @@ end
 if verbose == 1
         figure(1);
         hold on;
-        title('Mean Square Error')
-        xlabel('Frame number')
-        ylabel('Squared euclidean distance')
+        title('Mean Square Error','FontSize',14)
+        xlabel('Frame number','Fontsize',12)
+        ylabel('Squared euclidean distance','Fontsize',12)
         grid on
         if PARTICLES
             plot(errorPF(10:end), 'DisplayName', 'Particle Filter');
             sprintf('MSE PF = %d', mean(errorPF))
         end
         if KALMAN
-            plot(errorKF(10:end), 'DisplayName', 'Kalman Filter');
+            plot(errorKF(10:end), 'g', 'DisplayName', 'Kalman Filter');
             sprintf('MSE KF = %d', mean(errorKF))
         end
         if BOTH
-            plot(errorPKF(10:end),'DisplayName', 'Combined Filter');
+            plot(errorPKF(10:end),'r--', 'DisplayName', 'Combined Filter');
             sprintf('MSE combined = %d', mean(errorPKF))
         end
-        legend('show');
+        h = legend('show');
+        set(h,'FontSize',13);
 end
 

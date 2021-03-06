@@ -2,7 +2,7 @@
 This repository contains the code related with the project done for the [EL2320](http://www.kth.se/student/kurser/kurs/EL2320?l=en) course from [KTH Royal Institute of Technology](www.kth.se).
 
 ### Content
-- [Matlab Files](Matlab Files): Project code.
+- [Matlab Files](Matlab%20Files): Project code.
 - [Report.pdf](Report.pdf): Paper presenting our results.
 - [idea.md](idea.md): Initial project notes.
 
